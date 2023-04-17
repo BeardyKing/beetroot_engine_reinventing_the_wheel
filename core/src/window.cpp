@@ -1,9 +1,7 @@
 #include <beet/window.h>
 #include <beet/assert.h>
 #include <beet/defines.h>
-
-#include <cstdio>
-#include <cstdint>
+#include <beet/types.h>
 
 #ifndef UNICODE
 #define UNICODE
@@ -12,14 +10,14 @@
 #include <Windows.h>
 
 struct WindowInfo {
+    WNDCLASS windowClass;
+    HWND handle;
+    const wchar_t *applicationName;
+    const wchar_t *titleName;
     int32_t width;
     int32_t height;
     int32_t x;
     int32_t y;
-    const wchar_t *applicationName;
-    const wchar_t *titleName;
-    WNDCLASS windowClass;
-    HWND handle;
     bool shouldWindowClose;
 };
 
@@ -28,7 +26,6 @@ WindowInfo *g_windowInfo;
 LRESULT CALLBACK cb_window_procedure(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 void window_create() {
-
     int32_t screenX = GetSystemMetrics(SM_CXSCREEN) / 2 - (BEET_WINDOW_SIZE_X / 2);
     int32_t screenY = GetSystemMetrics(SM_CYSCREEN) / 2 - (BEET_WINDOW_SIZE_Y / 2);
 
@@ -70,7 +67,7 @@ void window_create() {
 
 void window_poll() {
     MSG msg = {};
-    if (GetMessage(&msg, nullptr, 0, 0)) {
+    if (PeekMessage(&msg, g_windowInfo->handle, 0, 0, PM_REMOVE)) {
         TranslateMessage(&msg);
         DispatchMessage(&msg);
     }
@@ -85,7 +82,6 @@ LRESULT CALLBACK cb_window_procedure(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM
         }
         case WM_PAINT: {
             ValidateRect(hwnd, nullptr);
-            printf("update paint\n");
             break;
         }
         default:
