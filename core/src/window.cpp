@@ -3,12 +3,15 @@
 #include <beet/defines.h>
 #include <beet/types.h>
 
+#include <beet/input.h>
+
 #ifndef UNICODE
 #define UNICODE
 #endif
 
 #include <Windows.h>
 
+//===internal structs========
 struct WindowInfo {
     WNDCLASS windowClass;
     HWND handle;
@@ -23,8 +26,46 @@ struct WindowInfo {
 
 WindowInfo *g_windowInfo;
 
-LRESULT CALLBACK cb_window_procedure(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+//===internal functions======
+LRESULT CALLBACK window_procedure_callback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    switch (uMsg) {
+        case WM_DESTROY: {
+            PostQuitMessage(0);
+            g_windowInfo->shouldWindowClose = true;
+            break;
+        };
+        case WM_KEYDOWN: {
+            input_key_down_callback((char) wParam);
+            break;
+        };
+        case WM_KEYUP: {
+            input_key_up_callback((char) wParam);
+            break;
+        };
+        case WM_PAINT: {
+            ValidateRect(hwnd, nullptr);
+            break;
+        };
+        default:
+            break;
+    }
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
 
+//===api=====================
+bool window_is_open() {
+    return !g_windowInfo->shouldWindowClose;
+}
+
+void window_poll() {
+    MSG msg = {};
+    if (PeekMessage(&msg, g_windowInfo->handle, 0, 0, PM_REMOVE)) {
+        TranslateMessage(&msg);
+        DispatchMessage(&msg);
+    }
+}
+
+//===init & shutdown=========
 void window_create() {
     int32_t screenX = GetSystemMetrics(SM_CXSCREEN) / 2 - (BEET_WINDOW_SIZE_X / 2);
     int32_t screenY = GetSystemMetrics(SM_CYSCREEN) / 2 - (BEET_WINDOW_SIZE_Y / 2);
@@ -38,7 +79,7 @@ void window_create() {
         g_windowInfo->y = screenY;
         g_windowInfo->applicationName = L"" BEET_WINDOW_APPLICATION_NAME;
         g_windowInfo->titleName = L"" BEET_WINDOW_TITLE;
-        g_windowInfo->windowClass.lpfnWndProc = cb_window_procedure;
+        g_windowInfo->windowClass.lpfnWndProc = window_procedure_callback;
         g_windowInfo->windowClass.hInstance = hInstance;
         g_windowInfo->windowClass.lpszClassName = g_windowInfo->applicationName;
     }
@@ -65,36 +106,9 @@ void window_create() {
     g_windowInfo->shouldWindowClose = false;
 }
 
-void window_poll() {
-    MSG msg = {};
-    if (PeekMessage(&msg, g_windowInfo->handle, 0, 0, PM_REMOVE)) {
-        TranslateMessage(&msg);
-        DispatchMessage(&msg);
-    }
-}
-
-LRESULT CALLBACK cb_window_procedure(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-    switch (uMsg) {
-        case WM_DESTROY: {
-            PostQuitMessage(0);
-            g_windowInfo->shouldWindowClose = true;
-            break;
-        }
-        case WM_PAINT: {
-            ValidateRect(hwnd, nullptr);
-            break;
-        }
-        default:
-            break;
-    }
-    return DefWindowProc(hwnd, uMsg, wParam, lParam);
-}
-
-bool window_is_open() {
-    return !g_windowInfo->shouldWindowClose;
-}
-
 void window_cleanup() {
     delete g_windowInfo;
     g_windowInfo = nullptr;
 }
+
+
