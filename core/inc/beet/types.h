@@ -2,6 +2,16 @@
 #define VK_BEETROOT_TYPES_H
 
 #include <cstdint>
+#include <beet/maths/vec2.h>
+
+enum class MouseButton {
+    Left = 0,
+    Right = 1,
+    Middle = 2,
+    Back = 3,
+    Forward = 4,
+    Last
+};
 
 enum class KeyCode {
     Unknown = -1,

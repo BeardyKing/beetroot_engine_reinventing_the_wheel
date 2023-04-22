@@ -10,6 +10,7 @@
 #endif
 
 #include <Windows.h>
+#include <WindowsX.h>
 
 //===internal structs========
 struct WindowInfo {
@@ -34,6 +35,10 @@ LRESULT CALLBACK window_procedure_callback(HWND hwnd, UINT uMsg, WPARAM wParam, 
             g_windowInfo->shouldWindowClose = true;
             break;
         };
+        case WM_PAINT: {
+            ValidateRect(hwnd, nullptr);
+            break;
+        };
         case WM_KEYDOWN: {
             input_key_down_callback((char) wParam);
             break;
@@ -42,10 +47,71 @@ LRESULT CALLBACK window_procedure_callback(HWND hwnd, UINT uMsg, WPARAM wParam, 
             input_key_up_callback((char) wParam);
             break;
         };
-        case WM_PAINT: {
-            ValidateRect(hwnd, nullptr);
+        case WM_MOUSEMOVE: {
+            const int32_t xPos = GET_X_LPARAM(lParam);
+            const int32_t yPos = GET_Y_LPARAM(lParam);
+            input_mouse_move_callback(xPos, yPos);
             break;
-        };
+        }
+        case WM_RBUTTONDOWN: {
+            input_mouse_down_callback((int32_t) MouseButton::Right);
+            break;
+        }
+        case WM_RBUTTONUP: {
+            input_mouse_up_callback((int32_t) MouseButton::Right);
+            break;
+        }
+        case WM_LBUTTONDOWN: {
+            input_mouse_down_callback((int32_t) MouseButton::Left);
+            break;
+        }
+        case WM_LBUTTONUP: {
+            input_mouse_up_callback((int32_t) MouseButton::Left);
+            break;
+        }
+        case WM_MBUTTONDOWN: {
+            input_mouse_down_callback((int32_t) MouseButton::Middle);
+            break;
+        }
+        case WM_MBUTTONUP: {
+            input_mouse_up_callback((int32_t) MouseButton::Middle);
+            break;
+        }
+        case WM_MOUSEWHEEL: {
+            const int32_t scrollDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+            input_mouse_scroll_callback(scrollDelta);
+            break;
+        }
+        case WM_XBUTTONDOWN: {
+            switch (GET_XBUTTON_WPARAM(wParam)) {
+                case XBUTTON1: {
+                    input_mouse_down_callback((int32_t) MouseButton::Back);
+                    break;
+                }
+                case XBUTTON2: {
+                    input_mouse_down_callback((int32_t) MouseButton::Forward);
+                    break;
+                }
+                default:
+                    break;
+            }
+            break;
+        }
+        case WM_XBUTTONUP: {
+            switch (GET_XBUTTON_WPARAM(wParam)) {
+                case XBUTTON1: {
+                    input_mouse_up_callback((int32_t) MouseButton::Back);
+                    break;
+                }
+                case XBUTTON2: {
+                    input_mouse_up_callback((int32_t) MouseButton::Forward);
+                    break;
+                }
+                default:
+                    break;
+            }
+            break;
+        }
         default:
             break;
     }
