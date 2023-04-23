@@ -22,13 +22,15 @@ void input_example() {
 
     //mouse move
     {
-        vec2i pos = input_mouse_position();
-        vec2f mouseDelta = input_mouse_delta();
-        vec2f mouseDeltaRaw = input_mouse_delta_raw();
-        if (mouseDeltaRaw.x != 0.0f || mouseDeltaRaw.y != 0.0f) {
-            printf("POS    : [ %i , %i ]\n", pos.x, pos.y);
-            printf("DELTA R: [ %f , %f ]\n", mouseDelta.x, mouseDelta.y);
-            printf("DELTA  : [ %f , %f ]\n", mouseDeltaRaw.x, mouseDeltaRaw.y);
+        if (input_mouse_down(MouseButton::Left)) {
+            vec2i pos = input_mouse_position();
+            vec2f mouseDelta = input_mouse_delta();
+            vec2f mouseDeltaRaw = input_mouse_delta_raw();
+            if (mouseDeltaRaw.x != 0.0f || mouseDeltaRaw.y != 0.0f) {
+                printf("POS    : [ %i , %i ]\n", pos.x, pos.y);
+                printf("DELTA R: [ %f , %f ]\n", mouseDelta.x, mouseDelta.y);
+                printf("DELTA  : [ %f , %f ]\n", mouseDeltaRaw.x, mouseDeltaRaw.y);
+            }
         }
     }
 
@@ -39,6 +41,31 @@ void input_example() {
         if (scrollRaw != 0) {
             printf("SCROLL DELTA R %f:\n", scrollRaw);
             printf("SCROLL DELTA   %f:\n", scroll);
+        }
+    }
+
+    //cursor modes
+    {
+        if (input_mouse_pressed(MouseButton::Right)) {
+            printf("TIME: %f \n", time_current());
+
+            window_set_cursor_lock_position(input_mouse_position());
+            window_set_cursor(CursorState::HiddenLockedLockMousePos);
+        }
+        if (input_mouse_released(MouseButton::Right)) {
+            printf("TIME: %f \n", time_current());
+            window_set_cursor(CursorState::Normal);
+        }
+    }
+
+    //cursor window
+    {
+        if (input_key_down(KeyCode::Space)) {
+            if (window_is_cursor_over_window()) {
+                printf("cursor over main window\n");
+            } else {
+                printf("cursor is free\n");
+            };
         }
     }
 
@@ -66,7 +93,7 @@ int main() {
         time_tick();
         input_set_time(time_current());
 
-        window_poll();
+        window_update();
         input_update();
 
         input_example();

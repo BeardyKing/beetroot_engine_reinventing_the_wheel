@@ -58,6 +58,11 @@ bool input_key_pressed(const KeyCode key) {
     return keyInfo->timePressed == g_input->cachedCurrentTime;
 }
 
+bool input_key_released(const KeyCode key) {
+    const KeyInfo *keyInfo = &g_input->keyboard[(size_t) key];
+    return keyInfo->timeReleased == g_input->cachedCurrentTime;
+}
+
 bool input_key_down(const KeyCode key) {
     return g_input->keyboard[(size_t) key].keyDown;
 }
@@ -73,6 +78,11 @@ float input_key_down_time(const KeyCode key) {
 bool input_mouse_pressed(const MouseButton button) {
     const KeyInfo *keyInfo = &g_input->mouseKeys[(size_t) button];
     return keyInfo->timePressed == g_input->cachedCurrentTime;
+}
+
+bool input_mouse_released(const MouseButton button) {
+    const KeyInfo *keyInfo = &g_input->mouseKeys[(size_t) button];
+    return keyInfo->timeReleased == g_input->cachedCurrentTime;
 }
 
 bool input_mouse_down(const MouseButton button) {

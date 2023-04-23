@@ -4,6 +4,15 @@
 #include <cstdint>
 #include <beet/maths/vec2.h>
 
+enum class CursorState {
+    Unknown = -1,
+    Normal = 0,
+    Hidden = 1,
+    Locked = 2,
+    HiddenLocked = 3,
+    HiddenLockedLockMousePos = 4,
+};
+
 enum class MouseButton {
     Left = 0,
     Right = 1,

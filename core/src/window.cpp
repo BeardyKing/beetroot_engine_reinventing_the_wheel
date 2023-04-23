@@ -18,11 +18,16 @@ struct WindowInfo {
     HWND handle;
     const wchar_t *applicationName;
     const wchar_t *titleName;
+
     int32_t width;
     int32_t height;
-    int32_t x;
-    int32_t y;
+    int32_t posX;
+    int32_t posY;
     bool shouldWindowClose;
+
+    CursorState currentCursorState;
+    vec2i lockedCursorPosition;
+    bool cursorOverWindow;
 };
 
 WindowInfo *g_windowInfo;
@@ -39,6 +44,25 @@ LRESULT CALLBACK window_procedure_callback(HWND hwnd, UINT uMsg, WPARAM wParam, 
             ValidateRect(hwnd, nullptr);
             break;
         };
+        case WM_SIZE: {
+            g_windowInfo->width = LOWORD(lParam);
+            g_windowInfo->height = HIWORD(lParam);
+            break;
+        }
+        case WM_MOVE: {
+            g_windowInfo->posX = (int32_t) (short) LOWORD(lParam);
+            g_windowInfo->posY = (int32_t) (short) HIWORD(lParam);
+            break;
+        }
+        case WM_MOUSELEAVE: {
+            g_windowInfo->cursorOverWindow = false;
+            break;
+        }
+        case WM_MOUSEHOVER: {
+            g_windowInfo->cursorOverWindow = true;
+            break;
+        }
+            //input
         case WM_KEYDOWN: {
             input_key_down_callback((char) wParam);
             break;
@@ -48,9 +72,9 @@ LRESULT CALLBACK window_procedure_callback(HWND hwnd, UINT uMsg, WPARAM wParam, 
             break;
         };
         case WM_MOUSEMOVE: {
-            const int32_t xPos = GET_X_LPARAM(lParam);
-            const int32_t yPos = GET_Y_LPARAM(lParam);
-            input_mouse_move_callback(xPos, yPos);
+            const int32_t x = GET_X_LPARAM(lParam);
+            const int32_t y = GET_Y_LPARAM(lParam);
+            input_mouse_move_callback(x, y);
             break;
         }
         case WM_RBUTTONDOWN: {
@@ -118,16 +142,109 @@ LRESULT CALLBACK window_procedure_callback(HWND hwnd, UINT uMsg, WPARAM wParam, 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
-//===api=====================
-bool window_is_open() {
-    return !g_windowInfo->shouldWindowClose;
+void update_cursor_state() {
+    switch (g_windowInfo->currentCursorState) {
+        case CursorState::HiddenLockedLockMousePos: {
+            vec2i &pos = g_windowInfo->lockedCursorPosition;
+            SetCursorPos(pos.x, pos.y);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void check_cursor_over_window(MSG *msg) {
+    POINT point;
+    GetCursorPos(&point);
+    const RECT rect{
+            g_windowInfo->posX,
+            g_windowInfo->posY,
+            g_windowInfo->posX + g_windowInfo->width,
+            g_windowInfo->posY + g_windowInfo->height,
+    };
+    bool cursorOverWindow = !(point.x <= rect.left || point.x >= rect.right || point.y >= rect.bottom ||
+                              point.y <= rect.top);
+    if (cursorOverWindow) {
+        if (!g_windowInfo->cursorOverWindow) {
+            g_windowInfo->cursorOverWindow = true;
+            msg->message = WM_MOUSEHOVER;
+            msg->hwnd = g_windowInfo->handle;
+            msg->lParam = 0xFFFFFFFF;
+        }
+    } else {
+        if (g_windowInfo->cursorOverWindow) {
+            g_windowInfo->cursorOverWindow = false;
+            msg->message = WM_MOUSELEAVE;
+            msg->hwnd = g_windowInfo->handle;
+            msg->lParam = 0xFFFFFFFF;
+        }
+    }
 }
 
 void window_poll() {
     MSG msg = {};
     if (PeekMessage(&msg, g_windowInfo->handle, 0, 0, PM_REMOVE)) {
+        check_cursor_over_window(&msg);
         TranslateMessage(&msg);
         DispatchMessage(&msg);
+    }
+}
+
+//===api=====================
+void window_update() {
+    window_poll();
+    update_cursor_state();
+}
+
+bool window_is_open() {
+    return !g_windowInfo->shouldWindowClose;
+}
+
+
+bool window_is_cursor_over_window() {
+    return g_windowInfo->cursorOverWindow;
+}
+
+void window_set_cursor_lock_position(const vec2i lockPos) {
+    g_windowInfo->lockedCursorPosition = vec2i{
+            g_windowInfo->posX + lockPos.x,
+            g_windowInfo->posY + lockPos.y
+    };
+}
+
+void window_set_cursor(CursorState state) {
+    const RECT rect{
+            g_windowInfo->posX,
+            g_windowInfo->posY,
+            g_windowInfo->posX + g_windowInfo->width,
+            g_windowInfo->posY + g_windowInfo->height,
+    };
+    g_windowInfo->currentCursorState = state;
+    switch (g_windowInfo->currentCursorState) {
+        case CursorState::Normal: {
+            ShowCursor(true);
+            ClipCursor(nullptr);
+            break;
+        }
+        case CursorState::Hidden: {
+            ShowCursor(false);
+            ClipCursor(nullptr);
+            break;
+        }
+        case CursorState::Locked: {
+            ShowCursor(true);
+            ClipCursor(&rect);
+            break;
+        }
+        case CursorState::HiddenLockedLockMousePos:
+        case CursorState::HiddenLocked: {
+            ShowCursor(false);
+            ClipCursor(&rect);
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -141,8 +258,8 @@ void window_create() {
         g_windowInfo = new WindowInfo{};
         g_windowInfo->width = BEET_WINDOW_SIZE_X;
         g_windowInfo->height = BEET_WINDOW_SIZE_Y;
-        g_windowInfo->x = screenX;
-        g_windowInfo->y = screenY;
+        g_windowInfo->posX = screenX;
+        g_windowInfo->posY = screenY;
         g_windowInfo->applicationName = L"" BEET_WINDOW_APPLICATION_NAME;
         g_windowInfo->titleName = L"" BEET_WINDOW_TITLE;
         g_windowInfo->windowClass.lpfnWndProc = window_procedure_callback;
@@ -157,8 +274,8 @@ void window_create() {
             g_windowInfo->applicationName,
             g_windowInfo->titleName,
             WS_OVERLAPPEDWINDOW,
-            g_windowInfo->x,
-            g_windowInfo->y,
+            g_windowInfo->posX,
+            g_windowInfo->posY,
             g_windowInfo->width,
             g_windowInfo->height,
             nullptr,
@@ -176,5 +293,6 @@ void window_cleanup() {
     delete g_windowInfo;
     g_windowInfo = nullptr;
 }
+
 
 
