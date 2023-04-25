@@ -1,9 +1,11 @@
-#include <beet/window.h>
-#include <beet/assert.h>
-#include <beet/defines.h>
-#include <beet/types.h>
+#include <cstdint>
 
-#include <beet/input.h>
+#include <core/window.h>
+#include <core/assert.h>
+#include <core/defines.h>
+#include <core/input.h>
+
+#include <math/vec2.h>
 
 #ifndef UNICODE
 #define UNICODE

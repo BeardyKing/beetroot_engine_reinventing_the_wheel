@@ -1,9 +1,7 @@
-#ifndef VK_BEETROOT_TYPES_H
-#define VK_BEETROOT_TYPES_H
+#ifndef BEETROOT_INPUT_TYPES_H
+#define BEETROOT_INPUT_TYPES_H
 
-#include <cstdint>
-#include <beet/maths/vec2.h>
-
+//===input types=============
 enum class CursorState {
     Unknown = -1,
     Normal = 0,
@@ -147,4 +145,4 @@ enum class KeyCode {
     Last
 };
 
-#endif //VK_BEETROOT_TYPES_H
+#endif //BEETROOT_INPUT_TYPES_H

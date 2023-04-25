@@ -1,7 +1,8 @@
 #ifndef VK_BEETROOT_WINDOW_H
 #define VK_BEETROOT_WINDOW_H
 
-#include <beet/types.h>
+#include <math/vec2.h>
+#include <core/input_types.h>
 
 //===api=====================
 bool window_is_open();

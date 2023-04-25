@@ -1,8 +1,9 @@
-#include <beet/window.h>
-#include <beet/time.h>
 #include <cstdio>
-#include <beet/input.h>
-#include <beet/maths/vec2.h>
+
+#include <core/window.h>
+#include <core/time.h>
+#include <core/input.h>
+#include <math/vec2.h>
 
 void input_example() {
 

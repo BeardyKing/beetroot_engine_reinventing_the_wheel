@@ -1,5 +1,4 @@
-#include <beet/time.h>
-#include <beet/types.h>
+#include <core/time.h>
 
 #include <windows.h>
 

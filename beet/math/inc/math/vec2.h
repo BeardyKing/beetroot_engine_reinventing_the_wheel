@@ -1,6 +1,8 @@
 #ifndef BEETROOT_VEC2_H
 #define BEETROOT_VEC2_H
 
+#include <cstdint>
+
 struct vec2f {
     union {
         struct {

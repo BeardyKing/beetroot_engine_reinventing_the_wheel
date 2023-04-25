@@ -1,7 +1,8 @@
 #ifndef VK_BEETROOT_INPUT_H
 #define VK_BEETROOT_INPUT_H
 
-#include <beet/types.h>
+#include <core/input_types.h>
+#include <math/vec2.h>
 
 //===api=====================
 void input_update();
@@ -36,4 +37,6 @@ void input_mouse_up_callback(int32_t keyCode);
 
 void input_mouse_move_callback(int32_t x, int32_t y);
 void input_mouse_scroll_callback(int32_t y);
+
+
 #endif //VK_BEETROOT_INPUT_H

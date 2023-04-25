@@ -1,5 +1,6 @@
-#include <beet/input.h>
 #include <cstdio>
+
+#include <core/input.h>
 
 //===internal structs========
 struct KeyInfo {

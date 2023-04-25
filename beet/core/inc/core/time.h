@@ -1,7 +1,7 @@
 #ifndef VK_BEETROOT_TIME_H
 #define VK_BEETROOT_TIME_H
 
-#include <beet/types.h>
+#include <cstdint>
 
 //===api=====================
 void time_tick();
