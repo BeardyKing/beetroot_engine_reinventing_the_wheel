@@ -5,7 +5,6 @@ add_library(core
         inc/core/input.h
         inc/core/input_types.h
         inc/core/time.h
-        inc/core/types.h
         inc/core/window.h
         src/input.cpp
         src/time.cpp
@@ -19,9 +18,6 @@ target_include_directories(core
         )
 
 ##===LIB DEPENDENCIES=====//
-include_directories(core
-        PRIVATE ${CMAKE_SOURCE_DIR}/beet/maths/inc/
-        )
 target_link_libraries(core
         math
         )

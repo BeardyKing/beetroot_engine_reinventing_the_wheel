@@ -4,13 +4,12 @@ add_executable(beet_client
         )
 
 ##===EXE DEPENDENCIES=====//
-include_directories(beet_client
-        ${CMAKE_SOURCE_DIR}/beet/core/inc/
-        ${CMAKE_SOURCE_DIR}/beet/maths/inc/
+target_include_directories(beet_client
+        PUBLIC ${CMAKE_SOURCE_DIR}/beet/core/inc/
+        PRIVATE ${CMAKE_SOURCE_DIR}/beet/core/inc/core/
         )
 target_link_libraries(beet_client
         core
-        math
         )
 
 ##===PROPERTIES===========//
