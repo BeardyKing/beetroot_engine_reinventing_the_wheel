@@ -1,6 +1,5 @@
 ##===LIB SOURCE===========//
 add_library(core
-        inc/core/assert.h
         inc/core/defines.h
         inc/core/input.h
         inc/core/input_types.h
@@ -9,17 +8,24 @@ add_library(core
         src/input.cpp
         src/time.cpp
         src/window.cpp
+        inc/core/engine.h
+        src/engine.cpp
         )
 
 ##===LIB TARGET DIR=======//
 target_include_directories(core
         PUBLIC inc
         PRIVATE inc/core
+
+        PUBLIC ${CMAKE_SOURCE_DIR}/beet/net/inc/
+        PRIVATE ${CMAKE_SOURCE_DIR}/beet/net/inc/core/
         )
 
 ##===LIB DEPENDENCIES=====//
 target_link_libraries(core
+        shared
         math
+        net
         )
 
 ##===LIB INSTALL RULES====//
@@ -27,3 +33,11 @@ install(TARGETS core
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         )
+
+##===DEBUG================//
+if (CMAKE_BUILD_TYPE MATCHES Debug)
+    target_compile_definitions(core PUBLIC BEET_DEBUG=1)
+    target_compile_definitions(core PUBLIC _DEBUG=1)
+else ()
+    target_compile_definitions(core PUBLIC NDEBUG=1)
+endif ()

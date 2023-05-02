@@ -1,5 +1,5 @@
-#ifndef VK_BEETROOT_WINDOW_H
-#define VK_BEETROOT_WINDOW_H
+#ifndef BEETROOT_WINDOW_H
+#define BEETROOT_WINDOW_H
 
 #include <math/vec2.h>
 #include <core/input_types.h>
@@ -16,4 +16,4 @@ bool window_is_cursor_over_window();
 void window_create();
 void window_cleanup();
 
-#endif //VK_BEETROOT_WINDOW_H
+#endif //BEETROOT_WINDOW_H

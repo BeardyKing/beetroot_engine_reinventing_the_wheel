@@ -1,5 +1,5 @@
-#ifndef VK_BEETROOT_TIME_H
-#define VK_BEETROOT_TIME_H
+#ifndef BEETROOT_TIME_H
+#define BEETROOT_TIME_H
 
 #include <cstdint>
 
@@ -13,4 +13,4 @@ uint32_t time_frame_count();
 void time_create();
 void time_cleanup();
 
-#endif //VK_BEETROOT_TIME_H
+#endif //BEETROOT_TIME_H

@@ -1,9 +1,9 @@
-#include <cstdio>
-
 #include <core/window.h>
 #include <core/time.h>
+#include <cstdio>
 #include <core/input.h>
 #include <math/vec2.h>
+#include <net/examples/sockets_examples.h>
 
 void input_example() {
 
@@ -89,6 +89,7 @@ int main() {
     window_create();
     time_create();
     input_create();
+    socket_example_create_server();
 
     while (window_is_open()) {
         time_tick();
@@ -98,8 +99,10 @@ int main() {
         input_update();
 
         input_example();
+        socket_example_update_server();
     }
 
+    socket_example_cleanup_server();
     input_cleanup();
     time_cleanup();
     window_cleanup();

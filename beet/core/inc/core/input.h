@@ -1,5 +1,5 @@
-#ifndef VK_BEETROOT_INPUT_H
-#define VK_BEETROOT_INPUT_H
+#ifndef BEETROOT_INPUT_H
+#define BEETROOT_INPUT_H
 
 #include <core/input_types.h>
 #include <math/vec2.h>
@@ -39,4 +39,4 @@ void input_mouse_move_callback(int32_t x, int32_t y);
 void input_mouse_scroll_callback(int32_t y);
 
 
-#endif //VK_BEETROOT_INPUT_H
+#endif //BEETROOT_INPUT_H

@@ -1,10 +1,10 @@
+//===defines=================
 #include <cstdint>
 
 #include <core/window.h>
-#include <core/assert.h>
+#include <shared/assert.h>
 #include <core/defines.h>
 #include <core/input.h>
-
 #include <math/vec2.h>
 
 #ifndef UNICODE
@@ -202,7 +202,6 @@ void window_update() {
 bool window_is_open() {
     return !g_windowInfo->shouldWindowClose;
 }
-
 
 bool window_is_cursor_over_window() {
     return g_windowInfo->cursorOverWindow;

@@ -1,5 +1,5 @@
-#ifndef VK_BEETROOT_ASSERT_H
-#define VK_BEETROOT_ASSERT_H
+#ifndef BEETROOT_ASSERT_H
+#define BEETROOT_ASSERT_H
 
 #include <cstdio>
 
@@ -38,4 +38,4 @@
     DEBUG_BREAK();                          \
 }
 
-#endif //VK_BEETROOT_ASSERT_H
+#endif //BEETROOT_ASSERT_H
