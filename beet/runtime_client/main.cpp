@@ -12,22 +12,26 @@ void client_setup_system_orders() {
     engine_register_system_create(2, input_create);
     engine_register_system_create(3, []() {
         gfx_create();
+        gfx_create_instance();
         window_create_render_surface(gfx_instance(), gfx_surface());
+        gfx_create_debug_callbacks();
     });
-    engine_register_system_create(4, socket_example_create_client);
 
     engine_register_system_update(0, time_tick);
     engine_register_system_update(1, []() { input_set_time(time_current()); });
     engine_register_system_update(2, window_update);
     engine_register_system_update(3, input_update);
-//    engine_register_system_update(4, socket_example_update_client);
 
     //executed as reverse iter
     engine_register_system_cleanup(0, window_cleanup);
     engine_register_system_cleanup(1, time_cleanup);
     engine_register_system_cleanup(2, input_cleanup);
-    engine_register_system_cleanup(3, gfx_cleanup);
-    engine_register_system_cleanup(4, socket_example_cleanup_client);
+    engine_register_system_cleanup(3, []() {
+        gfx_cleanup_debug_callbacks();
+        gfx_cleanup_surface();
+        gfx_cleanup_instance();
+        gfx_cleanup();
+    });
 }
 
 int main() {

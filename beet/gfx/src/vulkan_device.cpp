@@ -19,8 +19,10 @@ SANITY_CHECK()
 
 //===internal structs========
 struct GfxDevice {
-    VkSurfaceKHR vkSurface;
-    VkInstance vkInstance;
+    VkSurfaceKHR vkSurface{};
+    VkInstance vkInstance{};
+
+    VkDebugUtilsMessengerEXT vkDebugUtilsMessengerExt = VK_NULL_HANDLE;
 };
 
 GfxDevice *g_gfxDevice;
@@ -34,7 +36,6 @@ struct VulkanProperties {
 };
 
 VulkanProperties *g_vulkanProperties;
-
 
 //===internal functions======
 void store_supported_extensions() {
@@ -97,7 +98,69 @@ void validate_validation_layers() {
     }
 }
 
-void setup_vulkan_instance() {
+static VkBool32 VKAPI_PTR validation_message_callback(
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageWarningLevel,
+        VkDebugUtilsMessageTypeFlagsEXT /*messageType*/,
+        const VkDebugUtilsMessengerCallbackDataEXT *callbackData,
+        void */*userData*/) {
+
+    switch (messageWarningLevel) {
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: {
+            log_error("\ncode: \t\t%s \nmessage: \t%s\n", callbackData->pMessageIdName, callbackData->pMessage);
+            break;
+        }
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: {
+            log_warning("\ncode: \t\t%s \nmessage: \t%s\n", callbackData->pMessageIdName, callbackData->pMessage);
+            break;
+        }
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: {
+            log_info("\ncode: \t\t%s \nmessage: \t%s\n", callbackData->pMessageIdName, callbackData->pMessage);
+            break;
+        }
+        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: {
+            log_verbose("\ncode: \t\t%s \nmessage: \t%s\n", callbackData->pMessageIdName, callbackData->pMessage);
+            break;
+        }
+        default: {
+            ASSERT(callbackData && callbackData->pMessageIdName && callbackData->pMessage);
+        }
+    }
+    return VK_FALSE;
+}
+
+//===api=====================
+VkInstance *gfx_instance() {
+    return &g_gfxDevice->vkInstance;
+}
+
+VkSurfaceKHR *gfx_surface() {
+    return &g_gfxDevice->vkSurface;
+}
+
+//===init & shutdown=========
+void gfx_create() {
+    g_gfxDevice = new GfxDevice;
+    g_vulkanProperties = new VulkanProperties;
+}
+
+void gfx_cleanup() {
+    {
+        delete g_gfxDevice;
+        g_gfxDevice = nullptr;
+    }
+    {
+        delete[] g_vulkanProperties->supportedExtensions;
+        g_vulkanProperties->supportedExtensions = nullptr;
+
+        delete[] g_vulkanProperties->supportedValidationLayers;
+        g_vulkanProperties->supportedValidationLayers = nullptr;
+
+        delete g_vulkanProperties;
+        g_vulkanProperties = nullptr;
+    }
+}
+
+void gfx_create_instance() {
     store_supported_extensions();
     validate_extensions();
 
@@ -122,35 +185,51 @@ void setup_vulkan_instance() {
     ASSERT_MSG(result == VK_SUCCESS, "Err: failed to create vulkan instance");
 }
 
-//===api=====================
-VkInstance *gfx_instance() {
-    return &g_gfxDevice->vkInstance;
+void gfx_cleanup_instance() {
+    ASSERT_MSG(g_gfxDevice->vkInstance != VK_NULL_HANDLE, "Err: VkInstance has already been destroyed");
+    vkDestroyInstance(g_gfxDevice->vkInstance, nullptr);
+    g_gfxDevice->vkInstance = VK_NULL_HANDLE;
 }
 
-VkSurfaceKHR *gfx_surface() {
-    return &g_gfxDevice->vkSurface;
+void gfx_create_debug_callbacks() {
+    VkInstance &vkInstance = g_gfxDevice->vkInstance;
+    vkCreateDebugUtilsMessengerEXT_Func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(
+            vkInstance, BEET_VK_CREATE_DEBUG_UTIL_EXT);
+
+    ASSERT_MSG(vkCreateDebugUtilsMessengerEXT_Func, "Err: failed to setup debug callback %s",
+               BEET_VK_CREATE_DEBUG_UTIL_EXT);
+
+    vkDestroyDebugUtilsMessengerEXT_Func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(
+            vkInstance, BEET_VK_DESTROY_DEBUG_UTIL_EXT);
+
+    ASSERT_MSG(vkDestroyDebugUtilsMessengerEXT_Func, "Err: failed to setup debug callback %s",
+               BEET_VK_DESTROY_DEBUG_UTIL_EXT);
+
+    vkSetDebugUtilsObjectNameEXT_Func = (PFN_vkSetDebugUtilsObjectNameEXT) vkGetInstanceProcAddr(
+            vkInstance, BEET_VK_OBJECT_NAME_DEBUG_UTIL_EXT);
+
+    ASSERT_MSG(vkSetDebugUtilsObjectNameEXT_Func, "Err: failed to setup debug callback %s",
+               BEET_VK_OBJECT_NAME_DEBUG_UTIL_EXT);
+
+    VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo = {VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT};
+    messengerCreateInfo.messageSeverity = BEET_VK_DEBUG_UTILS_MESSAGE_SEVERITY;
+    messengerCreateInfo.messageType = BEET_VK_DEBUG_UTILS_MESSAGE_TYPE;
+    messengerCreateInfo.pfnUserCallback = validation_message_callback;
+    vkCreateDebugUtilsMessengerEXT_Func(vkInstance,
+                                        &messengerCreateInfo,
+                                        nullptr,
+                                        &g_gfxDevice->vkDebugUtilsMessengerExt);
 }
 
-//===init & shutdown=========
-void gfx_create() {
-    g_gfxDevice = new GfxDevice;
-    g_vulkanProperties = new VulkanProperties;
-    setup_vulkan_instance();
+void gfx_cleanup_debug_callbacks() {
+    ASSERT_MSG(g_gfxDevice->vkDebugUtilsMessengerExt != VK_NULL_HANDLE,
+               "Err: debug utils messenger has already been destroyed");
+    vkDestroyDebugUtilsMessengerEXT_Func(g_gfxDevice->vkInstance, g_gfxDevice->vkDebugUtilsMessengerExt, nullptr);
+    g_gfxDevice->vkDebugUtilsMessengerExt = VK_NULL_HANDLE;
 }
 
-void gfx_cleanup() {
-    {
-        delete g_gfxDevice;
-        g_gfxDevice = nullptr;
-    }
-    {
-        delete[] g_vulkanProperties->supportedExtensions;
-        g_vulkanProperties->supportedExtensions = nullptr;
-
-        delete[] g_vulkanProperties->supportedValidationLayers;
-        g_vulkanProperties->supportedValidationLayers = nullptr;
-
-        delete g_vulkanProperties;
-        g_vulkanProperties = nullptr;
-    }
+void gfx_cleanup_surface() {
+    ASSERT_MSG(g_gfxDevice->vkSurface != VK_NULL_HANDLE, "Err: VkSurface has already been destroyed");
+    vkDestroySurfaceKHR(g_gfxDevice->vkInstance, g_gfxDevice->vkSurface, nullptr);
+    g_gfxDevice->vkSurface = VK_NULL_HANDLE;
 }
