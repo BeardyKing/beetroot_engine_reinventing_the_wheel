@@ -2,7 +2,9 @@
 add_library(net
         inc/net/sockets.h
         src/sockets_windows.cpp
-        inc/net/examples/sockets_examples.h src/examples/sockets_examples.cpp)
+        inc/net/examples/sockets_examples.h
+        src/examples/sockets_examples.cpp
+        )
 
 ##===LIB TARGET DIR=======//
 target_include_directories(net

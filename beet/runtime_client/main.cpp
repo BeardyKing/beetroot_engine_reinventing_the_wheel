@@ -4,12 +4,17 @@
 #include <core/input.h>
 #include <net/examples/sockets_examples.h>
 #include <shared/log.h>
+#include <gfx/gfx_interface.h>
 
 void client_setup_system_orders() {
     engine_register_system_create(0, window_create);
     engine_register_system_create(1, time_create);
     engine_register_system_create(2, input_create);
-    engine_register_system_create(3, socket_example_create_client);
+    engine_register_system_create(3, []() {
+        gfx_create();
+        window_create_render_surface(gfx_instance(), gfx_surface());
+    });
+    engine_register_system_create(4, socket_example_create_client);
 
     engine_register_system_update(0, time_tick);
     engine_register_system_update(1, []() { input_set_time(time_current()); });
@@ -21,13 +26,11 @@ void client_setup_system_orders() {
     engine_register_system_cleanup(0, window_cleanup);
     engine_register_system_cleanup(1, time_cleanup);
     engine_register_system_cleanup(2, input_cleanup);
-    engine_register_system_cleanup(3, socket_example_cleanup_client);
+    engine_register_system_cleanup(3, gfx_cleanup);
+    engine_register_system_cleanup(4, socket_example_cleanup_client);
 }
 
 int main() {
-    uint32_t outTest{32};
-    log_debug("simple logging %u\n", outTest);
-
     engine_create();
     client_setup_system_orders();
     engine_system_create();

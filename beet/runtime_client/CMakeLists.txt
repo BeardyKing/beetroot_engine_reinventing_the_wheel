@@ -3,16 +3,9 @@ add_executable(beet_client
         main.cpp
         )
 
-##===EXE DEPENDENCIES=====//
-target_include_directories(beet_client
-        PUBLIC ${CMAKE_SOURCE_DIR}/beet/core/inc/
-        PRIVATE ${CMAKE_SOURCE_DIR}/beet/core/inc/core/
-
-        PUBLIC ${CMAKE_SOURCE_DIR}/beet/net/inc/
-        PRIVATE ${CMAKE_SOURCE_DIR}/beet/net/inc/core/
-        )
 target_link_libraries(beet_client
         core
+        gfx
         net
         )
 

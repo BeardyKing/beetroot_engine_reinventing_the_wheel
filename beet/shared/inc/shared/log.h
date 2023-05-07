@@ -10,7 +10,7 @@
 #define MSG_ERROR       4
 #define MSG_CRITICAL    5
 
-#define MSG_MIN_WARNING_LEVEL MSG_VERBOSE
+#define MSG_MIN_WARNING_LEVEL MSG_INFO
 
 #if BEET_DEBUG
 #define log_verbose(...){                               \
@@ -50,7 +50,7 @@
 #define log_error(...){}
 #define log_critical(...){}
 
-#define log(level, ...){}
+#define beet_log(level, ...){}
 #endif
 
 #endif //BEETROOT_LOG_H

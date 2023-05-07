@@ -1,8 +1,8 @@
 //===defines=================
 #include <cstdint>
 
-#include <core/window.h>
 #include <shared/assert.h>
+#include <core/window.h>
 #include <core/defines.h>
 #include <core/input.h>
 #include <math/vec2.h>
@@ -11,8 +11,12 @@
 #define UNICODE
 #endif
 
+#define WIN32_LEAN_AND_MEAN
+
 #include <Windows.h>
 #include <WindowsX.h>
+
+#include <vulkan/vulkan_win32.h>
 
 //===internal structs========
 struct WindowInfo {
@@ -247,6 +251,18 @@ void window_set_cursor(CursorState state) {
         default:
             break;
     }
+}
+
+void window_create_render_surface(const VkInstance *instance, VkSurfaceKHR *out_surface) {
+    VkWin32SurfaceCreateInfoKHR surfaceInfo = {
+            VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR
+    };
+
+    surfaceInfo.hinstance = GetModuleHandle(nullptr);
+    surfaceInfo.hwnd = g_windowInfo->handle;
+
+    VkResult result = vkCreateWin32SurfaceKHR(*instance, &surfaceInfo, nullptr, out_surface);
+    ASSERT_MSG(result == VK_SUCCESS, "Err: failed to create vulkan surface");
 }
 
 //===init & shutdown=========

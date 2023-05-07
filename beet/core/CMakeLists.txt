@@ -25,6 +25,7 @@ target_include_directories(core
 target_link_libraries(core
         shared
         math
+        gfx
         net
         )
 
@@ -33,6 +34,8 @@ install(TARGETS core
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         )
+
+set_target_properties(core PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
 
 ##===DEBUG================//
 if (CMAKE_BUILD_TYPE MATCHES Debug)

@@ -1,7 +1,8 @@
 ##===LIB SOURCE===========//
 add_library(shared
         inc/shared/assert.h
-        src/log.cpp inc/shared/log.h)
+        src/log.cpp inc/shared/log.h
+        )
 
 ##===LIB TARGET DIR=======//
 target_include_directories(shared
@@ -14,6 +15,8 @@ install(TARGETS shared
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         )
+
+set_target_properties(shared PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
 
 ##===DEBUG================//
 if (CMAKE_BUILD_TYPE MATCHES Debug)
