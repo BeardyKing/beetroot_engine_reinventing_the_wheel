@@ -21,6 +21,7 @@ SANITY_CHECK()
 struct GfxDevice {
     VkSurfaceKHR vkSurface{};
     VkInstance vkInstance{};
+    VkPhysicalDevice vkPhysicalDevice{};
 
     VkDebugUtilsMessengerEXT vkDebugUtilsMessengerExt = VK_NULL_HANDLE;
 };
@@ -33,9 +34,26 @@ struct VulkanProperties {
 
     VkLayerProperties *supportedValidationLayers{};
     uint32_t validationLayersCount{};
+
+    VkPhysicalDeviceProperties selectedPhysicalDevice{};
 };
 
 VulkanProperties *g_vulkanProperties;
+
+struct UserArguments {
+    uint32_t selectedPhysicalDeviceIndex{};
+};
+
+UserArguments *g_userArguments;
+
+//===internal mappings=======
+static const char *BEET_VK_PHYSICAL_DEVICE_TYPE_MAPPING[] = {
+        "VK_PHYSICAL_DEVICE_TYPE_OTHER",
+        "VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU",
+        "VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU",
+        "VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU",
+        "VK_PHYSICAL_DEVICE_TYPE_CPU",
+};
 
 //===internal functions======
 void store_supported_extensions() {
@@ -66,34 +84,17 @@ void store_supported_validation_layers() {
     }
 }
 
-bool find_supported_extension(const char *extensionName) {
-    for (uint32_t i = 0; i < g_vulkanProperties->extensionsCount; ++i) {
-        if (strcmp(g_vulkanProperties->supportedExtensions[i].extensionName, extensionName) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
 void validate_extensions() {
     for (uint8_t i = 0; i < BEET_VK_EXTENSION_COUNT; i++) {
-        bool result = find_supported_extension(vulkanExtensions[i]);
+        bool result = gfx_find_supported_extension(vulkanExtensions[i]);
         ASSERT_MSG(result, "Err: failed find support for extension [%s]", vulkanExtensions[i]);
     }
 }
 
-bool find_supported_validation(const char *layerName) {
-    for (uint32_t i = 0; i < g_vulkanProperties->validationLayersCount; ++i) {
-        if (strcmp(g_vulkanProperties->supportedValidationLayers[i].layerName, layerName) == 0) {
-            return true;
-        }
-    }
-    return false;
-}
 
 void validate_validation_layers() {
     for (uint8_t i = 0; i < BEET_VK_VALIDATION_COUNT; i++) {
-        bool result = find_supported_validation(vulkanValidations[i]);
+        bool result = gfx_find_supported_validation(vulkanValidations[i]);
         ASSERT_MSG(result, "Err: failed find support for validation layer [%s]", vulkanValidations[i]);
     }
 }
@@ -137,10 +138,29 @@ VkSurfaceKHR *gfx_surface() {
     return &g_gfxDevice->vkSurface;
 }
 
+bool gfx_find_supported_extension(const char *extensionName) {
+    for (uint32_t i = 0; i < g_vulkanProperties->extensionsCount; ++i) {
+        if (strcmp(g_vulkanProperties->supportedExtensions[i].extensionName, extensionName) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool gfx_find_supported_validation(const char *layerName) {
+    for (uint32_t i = 0; i < g_vulkanProperties->validationLayersCount; ++i) {
+        if (strcmp(g_vulkanProperties->supportedValidationLayers[i].layerName, layerName) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 //===init & shutdown=========
 void gfx_create() {
     g_gfxDevice = new GfxDevice;
     g_vulkanProperties = new VulkanProperties;
+    g_userArguments = new UserArguments;
 }
 
 void gfx_cleanup() {
@@ -157,6 +177,9 @@ void gfx_cleanup() {
 
         delete g_vulkanProperties;
         g_vulkanProperties = nullptr;
+    }
+    {
+        delete g_userArguments;
     }
 }
 
@@ -232,4 +255,63 @@ void gfx_cleanup_surface() {
     ASSERT_MSG(g_gfxDevice->vkSurface != VK_NULL_HANDLE, "Err: VkSurface has already been destroyed");
     vkDestroySurfaceKHR(g_gfxDevice->vkInstance, g_gfxDevice->vkSurface, nullptr);
     g_gfxDevice->vkSurface = VK_NULL_HANDLE;
+}
+
+void gfx_create_physical_device() {
+    VkPhysicalDevice *physicalDevices = nullptr;
+    uint32_t deviceCount = 0;
+    uint32_t selectedDevice = 0;
+
+    vkEnumeratePhysicalDevices(g_gfxDevice->vkInstance, &deviceCount, nullptr);
+    ASSERT_MSG(deviceCount != 0, "Err: did not find any vulkan compatible physical devices");
+
+    physicalDevices = new VkPhysicalDevice[deviceCount];
+    vkEnumeratePhysicalDevices(g_gfxDevice->vkInstance, &deviceCount, physicalDevices);
+
+    //TODO:GFX: Add fallback support for `best` GPU based on intended workload, if no argument is provided we fallback to device [0]
+    selectedDevice = g_userArguments->selectedPhysicalDeviceIndex;
+#if BEET_DEBUG
+    if (BEET_DEBUG_VK_FORCE_GPU_SELECTION > -1) {
+        selectedDevice = BEET_DEBUG_VK_FORCE_GPU_SELECTION;
+        log_warning("Using debug ONLY feature `BEET_VK_FORCE_GPU_SELECTION` selecting device [%i]\n",
+                    selectedDevice)
+    }
+#endif
+
+    ASSERT_MSG(selectedDevice < deviceCount, "Err: selecting physical vulkan device that is out of range");
+    g_gfxDevice->vkPhysicalDevice = physicalDevices[selectedDevice];
+
+    vkGetPhysicalDeviceProperties(g_gfxDevice->vkPhysicalDevice, &g_vulkanProperties->selectedPhysicalDevice);
+
+    const uint32_t apiVersionMajor = VK_API_VERSION_MAJOR(g_vulkanProperties->selectedPhysicalDevice.apiVersion);
+    const uint32_t apiVersionMinor = VK_API_VERSION_MINOR(g_vulkanProperties->selectedPhysicalDevice.apiVersion);
+    const uint32_t apiVersionPatch = VK_API_VERSION_PATCH(g_vulkanProperties->selectedPhysicalDevice.apiVersion);
+
+    const uint32_t driverVersionMajor = VK_API_VERSION_MAJOR(g_vulkanProperties->selectedPhysicalDevice.driverVersion);
+    const uint32_t driverVersionMinor = VK_API_VERSION_MINOR(g_vulkanProperties->selectedPhysicalDevice.driverVersion);
+    const uint32_t driverVersionPatch = VK_API_VERSION_PATCH(g_vulkanProperties->selectedPhysicalDevice.driverVersion);
+
+    const char *deviceType = BEET_VK_PHYSICAL_DEVICE_TYPE_MAPPING[g_vulkanProperties->selectedPhysicalDevice.deviceType];
+
+    log_info("\nName:\t\t%s \nType:\t\t%s \nVersion:\t%u.%u.%u \nDriver: \t%u.%u.%u\n",
+             g_vulkanProperties->selectedPhysicalDevice.deviceName,
+             deviceType,
+             apiVersionMajor,
+             apiVersionMinor,
+             apiVersionPatch,
+             driverVersionMajor,
+             driverVersionMinor,
+             driverVersionPatch
+    );
+
+    delete[] physicalDevices;
+    physicalDevices = nullptr;
+}
+
+void gfx_cleanup_physical_device() {
+    g_gfxDevice->vkPhysicalDevice = VK_NULL_HANDLE;
+}
+
+void gfx_select_physical_device(uint32_t deviceIndex) {
+    g_userArguments->selectedPhysicalDeviceIndex = deviceIndex;
 }

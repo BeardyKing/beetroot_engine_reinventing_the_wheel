@@ -15,6 +15,7 @@ void client_setup_system_orders() {
         gfx_create_instance();
         window_create_render_surface(gfx_instance(), gfx_surface());
         gfx_create_debug_callbacks();
+        gfx_create_physical_device();
     });
 
     engine_register_system_update(0, time_tick);
@@ -27,6 +28,7 @@ void client_setup_system_orders() {
     engine_register_system_cleanup(1, time_cleanup);
     engine_register_system_cleanup(2, input_cleanup);
     engine_register_system_cleanup(3, []() {
+        gfx_cleanup_physical_device();
         gfx_cleanup_debug_callbacks();
         gfx_cleanup_surface();
         gfx_cleanup_instance();

@@ -12,6 +12,11 @@
 #elif defined(__linux__)
 #endif
 
+//==debug====================
+#if BEET_DEBUG
+const int BEET_DEBUG_VK_FORCE_GPU_SELECTION = -1; // ignore [-1] force select [0 .. UINT32_MAX]
+#endif
+
 //===extensions==============
 const int BEET_VK_EXTENSION_COUNT = 3;
 const char *vulkanExtensions[BEET_VK_EXTENSION_COUNT]{

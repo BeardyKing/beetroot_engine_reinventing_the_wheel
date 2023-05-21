@@ -30,7 +30,7 @@
 }
 
 #define log_error(...){                                 \
-    beet_log(MSG_ERROR,"[error] : "  __VA_ARGS__)   \
+    beet_log(MSG_ERROR,"[error] : "  __VA_ARGS__)       \
 }
 
 #define log_critical(...){                              \
