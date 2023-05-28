@@ -1,7 +1,10 @@
 ##===LIB SOURCE===========//
 add_library(shared
         inc/shared/assert.h
-        src/log.cpp inc/shared/log.h
+        inc/shared/bit_utils.h
+        inc/shared/log.h
+        src/log.cpp
+        src/bit_utils.cpp
         )
 
 ##===LIB TARGET DIR=======//

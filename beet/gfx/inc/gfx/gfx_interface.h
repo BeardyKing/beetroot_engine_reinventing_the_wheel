@@ -28,4 +28,7 @@ void gfx_cleanup_debug_callbacks();
 void gfx_create_physical_device();
 void gfx_cleanup_physical_device();
 
+void gfx_create_queues();
+void gfx_cleanup_queues();
+
 #endif //BEETROOT_GFX_INTERFACE_H
