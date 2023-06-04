@@ -12,10 +12,16 @@ target_include_directories(gfx
         PRIVATE inc/gfx
         )
 
+##===LIB THIRD PARTY======//
+project(vma)
+add_library(vma INTERFACE)
+
 ##===LIB DEPENDENCIES=====//
 target_link_libraries(gfx
         shared
+        math
         Vulkan::Vulkan
+        vma
         )
 
 ##===LIB INSTALL RULES====//

@@ -1,6 +1,9 @@
 #ifndef BEETROOT_VULKAN_PLATFORM_DEFINES_H
 #define BEETROOT_VULKAN_PLATFORM_DEFINES_H
 
+//===runtime=================
+const uint32_t BEET_VK_COMMAND_BUFFER_COUNT = 2;
+
 //===surface=================
 #if defined (_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -14,7 +17,7 @@
 
 //==debug====================
 #if BEET_DEBUG
-const int BEET_DEBUG_VK_FORCE_GPU_SELECTION = -1; // ignore [-1] force select [0 .. UINT32_MAX]
+const int BEET_DEBUG_VK_FORCE_GPU_SELECTION = 0; // ignore [-1] force select [0 .. UINT32_MAX]
 #endif
 
 //===extensions==============

@@ -282,6 +282,7 @@ void window_create() {
         g_windowInfo->windowClass.lpfnWndProc = window_procedure_callback;
         g_windowInfo->windowClass.hInstance = hInstance;
         g_windowInfo->windowClass.lpszClassName = g_windowInfo->applicationName;
+        g_windowInfo->windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
     }
 
     RegisterClass(&g_windowInfo->windowClass);

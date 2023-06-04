@@ -1,0 +1,3 @@
+[submodule "beet/gfx/third/VulkanMemoryAllocator"]
+	path = beet/gfx/third/VulkanMemoryAllocator
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git

@@ -38,8 +38,7 @@ void time_tick() {
     g_time->frameCount += 1;
     g_time->lastTime = g_time->currentTime;
     g_time->currentTime = (double) timeNow.QuadPart / g_time->frequency;
-    g_time->deltaTime = (g_time->currentTime - g_time->lastTime) *
-                        ((g_time->timeScale * g_time->timeScaleDelta) / g_time->frequency);
+    g_time->deltaTime = (g_time->currentTime - g_time->lastTime);
 }
 
 //===init & shutdown=========
@@ -52,8 +51,8 @@ void time_create() {
 
     g_time = new Time{
             (double) now.QuadPart / (double) frequency.QuadPart,
-            (double) 0,
-            (double) 0,
+            (double) now.QuadPart / (double) frequency.QuadPart,
+            (double) now.QuadPart / (double) frequency.QuadPart,
             1.0,
             1000.0,
             (double) frequency.QuadPart,

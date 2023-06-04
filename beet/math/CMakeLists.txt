@@ -1,8 +1,14 @@
 ##===LIB SOURCE===========//
 add_library(math
+        inc/math/utilities.h
+
         inc/math/vec2.h
         src/vec2.cpp
-        )
+        inc/math/mat4.h
+        src/mat4.cpp
+        inc/math/vec3.h
+        src/vec3.cpp
+        src/utilities.cpp)
 
 ##===LIB TARGET DIR=======//
 target_include_directories(math
