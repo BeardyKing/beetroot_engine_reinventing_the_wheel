@@ -2,6 +2,8 @@
 #define BEETROOT_LOG_H
 
 #include <cstdio>
+#include <chrono>
+#include <ctime>
 
 #define MSG_VERBOSE     0
 #define MSG_INFO        1
@@ -37,10 +39,14 @@
     beet_log(MSG_CRITICAL,"[critical] : "  __VA_ARGS__) \
 }
 
-#define beet_log(level, ...){                           \
-    if(level >= MSG_MIN_WARNING_LEVEL){                 \
-        printf("[" __TIME__ "]" __VA_ARGS__);           \
-    }                                                   \
+#define beet_log(level, ...){                                       \
+    time_t t = time(nullptr);                                       \
+    struct tm buf{};                                                \
+    localtime_s(&buf, &t);                                          \
+    if(level >= MSG_MIN_WARNING_LEVEL){                             \
+        printf("[%i:%i:%i]", buf.tm_hour, buf.tm_min, buf.tm_sec);  \
+        printf(__VA_ARGS__);                                        \
+    }                                                               \
 }
 #else
 #define log_verbose(...){}

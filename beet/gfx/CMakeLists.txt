@@ -1,10 +1,13 @@
+cmake_minimum_required(VERSION 3.21)
+
 find_package(Vulkan REQUIRED)
 
 ##===LIB SOURCE===========//
 add_library(gfx
         inc/gfx/gfx_interface.h
         src/vulkan_device.cpp
-        inc/gfx/vulkan_platform_defines.h)
+        inc/gfx/vulkan_platform_defines.h
+        )
 
 ##===LIB TARGET DIR=======//
 target_include_directories(gfx
@@ -30,7 +33,7 @@ install(TARGETS gfx
         ARCHIVE DESTINATION lib
         )
 
-set_target_properties(gfx PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
+set_target_properties(gfx PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
 
 ##===DEBUG================//
 if (CMAKE_BUILD_TYPE MATCHES Debug)
