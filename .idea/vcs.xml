@@ -3,9 +3,9 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/beet/gfx/third/VulkanMemoryAllocator" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/beet/gfx/third/freetype" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/beet/gfx/third/harfbuzz" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/preprocess_pipeline/third/fmt" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/preprocess_pipeline/third/freetype" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/preprocess_pipeline/third/harfbuzz" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/preprocess_pipeline/third/stb" vcs="Git" />
   </component>
 </project>

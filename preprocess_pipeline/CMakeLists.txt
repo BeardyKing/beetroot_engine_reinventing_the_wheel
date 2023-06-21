@@ -1,6 +1,15 @@
 ##===EXE SOURCE===========//
 add_executable(beet_pipeline
         main.cpp
+        inc/pipeline/font_shared.h
+        inc/pipeline/font_atlas.h
+        src/font_atlas.cpp
+        )
+
+##===LIB TARGET DIR=======//
+target_include_directories(beet_pipeline
+        PUBLIC inc
+        PRIVATE inc/pipeline
         )
 
 ##===LIB THIRD PARTY======//
@@ -18,8 +27,8 @@ set(HarfBuzz_FIND_REQUIRED OFF)
 add_subdirectory(third/freetype)
 
 ##===LIB HARFBUZZ=========//
-set (FT_DISABLE_HARFBUZZ OFF)
-set (CMAKE_DISABLE_FIND_PACKAGE_HarfBuzz TRUE)
+set(FT_DISABLE_HARFBUZZ OFF)
+set(CMAKE_DISABLE_FIND_PACKAGE_HarfBuzz TRUE)
 
 add_subdirectory(third/harfbuzz)
 ##===LIB FMT==============//
