@@ -13,24 +13,6 @@ target_include_directories(beet_pipeline
         )
 
 ##===LIB THIRD PARTY======//
-##===LIB STB==============//
-include_directories(beet
-        third/stb/
-        )
-
-##===LIB FREETYPE=========//
-option(WITH_ZLIB "Freetype: Enable zlib " OFF)
-option(WITH_BZip2 "Freetype: Enable bzip2 " OFF)
-option(WITH_PNG "Freetype: Build with PNG" OFF)
-option(WITH_HarfBuzz "Freetype: Enable harfbuzz" ON)
-set(HarfBuzz_FIND_REQUIRED OFF)
-add_subdirectory(third/freetype)
-
-##===LIB HARFBUZZ=========//
-set(FT_DISABLE_HARFBUZZ OFF)
-set(CMAKE_DISABLE_FIND_PACKAGE_HarfBuzz TRUE)
-
-add_subdirectory(third/harfbuzz)
 ##===LIB FMT==============//
 add_subdirectory(third/fmt)
 

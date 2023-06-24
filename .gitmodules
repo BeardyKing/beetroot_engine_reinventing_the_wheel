@@ -4,8 +4,8 @@
 [submodule "beet/shared/third/stb"]
 	path = beet/shared/third/stb
 	url = https://github.com/nothings/stb.git
-[submodule "preprocess_pipeline/third/fmt"]
-	path = preprocess_pipeline/third/fmt
+[submodule "beet_pipeline/third/fmt"]
+	path = beet_pipeline/third/fmt
 	url = https://github.com/fmtlib/fmt.git
 [submodule "beet/gfx/third/freetype"]
 	path = beet/gfx/third/freetype

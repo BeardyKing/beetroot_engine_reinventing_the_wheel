@@ -11,7 +11,7 @@ add_subdirectory(beet/net)
 add_subdirectory(beet/core)
 
 ##===OFFLINE PIPELINE=====//
-add_subdirectory(preprocess_pipeline)
+add_subdirectory(beet_pipeline)
 
 ##===EXES=================//
 add_subdirectory(beet/runtime_client)
