@@ -16,8 +16,23 @@ target_include_directories(gfx
         )
 
 ##===LIB THIRD PARTY======//
+##===LIB VMA==============//
 project(vma)
 add_library(vma INTERFACE)
+
+##===LIB FREETYPE=========//
+option(WITH_ZLIB "Freetype: Enable zlib " OFF)
+option(WITH_BZip2 "Freetype: Enable bzip2 " OFF)
+option(WITH_PNG "Freetype: Build with PNG" OFF)
+option(WITH_HarfBuzz "Freetype: Enable harfbuzz" ON)
+set(HarfBuzz_FIND_REQUIRED OFF)
+add_subdirectory(third/freetype)
+
+##===LIB HARFBUZZ=========//
+set(FT_DISABLE_HARFBUZZ OFF)
+set(CMAKE_DISABLE_FIND_PACKAGE_HarfBuzz TRUE)
+
+add_subdirectory(third/harfbuzz)
 
 ##===LIB DEPENDENCIES=====//
 target_link_libraries(gfx
@@ -25,12 +40,8 @@ target_link_libraries(gfx
         math
         Vulkan::Vulkan
         vma
-        )
-
-##===LIB INSTALL RULES====//
-install(TARGETS gfx
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
+        harfbuzz
+        freetype
         )
 
 set_target_properties(gfx PROPERTIES CXX_STANDARD 17 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)

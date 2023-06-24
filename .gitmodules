@@ -2,14 +2,14 @@
 	path = beet/gfx/third/VulkanMemoryAllocator
 	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
 [submodule "preprocess_pipeline/third/stb"]
-	path = preprocess_pipeline/third/stb
+	path = beet/shared/third/stb
 	url = https://github.com/nothings/stb.git
 [submodule "preprocess_pipeline/third/fmt"]
 	path = preprocess_pipeline/third/fmt
 	url = https://github.com/fmtlib/fmt.git
 [submodule "preprocess_pipeline/third/freetype"]
-	path = preprocess_pipeline/third/freetype
+	path = beet/gfx/third/freetype
 	url = https://github.com/freetype/freetype.git
 [submodule "preprocess_pipeline/third/harfbuzz"]
-	path = preprocess_pipeline/third/harfbuzz
+	path = beet/gfx/third/harfbuzz
 	url = https://github.com/harfbuzz/harfbuzz.git

@@ -11,12 +11,14 @@ add_library(shared
 target_include_directories(shared
         PUBLIC inc
         PRIVATE inc/shared
+
+        PUBLIC third/stb/
         )
 
-##===LIB INSTALL RULES====//
-install(TARGETS shared
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
+##===LIB THIRD PARTY======//
+##===LIB STB==============//
+include_directories(shared
+        third/stb/
         )
 
 set_target_properties(shared PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
