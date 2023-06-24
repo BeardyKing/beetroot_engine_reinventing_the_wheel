@@ -1,0 +1,15 @@
+JetbrainsMono
+    Font: JetBrainsMono-Regular
+    Font Dir: res/fonts/JetBrainsMono/
+    Format: TrueTypeFont
+    Link: https://github.com/JetBrains/JetBrainsMono
+    Licence: Open Font Licence 1.1
+    Licence Link: https://github.com/JetBrains/JetBrainsMono/blob/master/OFL.txt
+
+GNU Unifont Glyphs
+    Font: unifont-15.0.06
+    Font Dir: res/fonts/Unifont/
+    Format: TrueTypeFont
+    Link: https://unifoundry.com/unifont/index.html
+    Licence: Open Font Licence 1.1
+    Licence Link: https://unifoundry.com/OFL-1.1.txt
