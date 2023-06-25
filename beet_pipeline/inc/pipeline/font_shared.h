@@ -1,8 +1,7 @@
 #ifndef BEETROOT_FONT_SHARED_H
 #define BEETROOT_FONT_SHARED_H
 
-#define PIPELINE_RES_DIR BEET_CMAKE_RES_DIR // defined in preprocess_pipeline/CmakeLists.txt
-#define PIPELINE_FONT_DIR BEET_CMAKE_RES_DIR "fonts/"
+#include <pipeline/pipeline_defines.h>
 
 #include <cstdint>
 

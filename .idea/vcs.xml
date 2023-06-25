@@ -7,6 +7,6 @@
     <mapping directory="$PROJECT_DIR$/beet/gfx/third/freetype/subprojects/dlg" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/beet/gfx/third/harfbuzz" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/beet/shared/third/stb" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/preprocess_pipeline/third/fmt" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/beet_pipeline/third/fmt" vcs="Git" />
   </component>
 </project>

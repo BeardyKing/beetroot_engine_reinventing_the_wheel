@@ -17,11 +17,13 @@
 #include <hb.h>
 #include <hb-ft.h>
 
-void pipeline_build_font_atlas(const std::string &path,
-                               const std::string &fontName,
+void pipeline_build_font_atlas(const std::string &fontName,
                                const std::string &fontExt,
                                uint32_t fontSize,
                                uint32_t atlasSize) {
+
+    const std::string readPath = PIPELINE_FONT_DIR;
+    const std::string savePath = CLIENT_RUNTIME_FONT_DIR;
     const uint32_t dotSize = 6;
 
     const std::array<CharRanges, 1> supportedRanges{
@@ -51,9 +53,9 @@ void pipeline_build_font_atlas(const std::string &path,
 
     GlyphInfo *glyphInfo = new GlyphInfo[glyphCount];
 
-    std::string fontSrc = std::format("{}{}{}", path, fontName, fontExt);
-    std::string fontOutName = std::format("{}{}{}", path, fontName, ".png");
-    std::string fontOutNameMeta = std::format("{}{}{}", path, fontName, ".desc");
+    std::string fontSrc = std::format("{}{}{}", readPath, fontName, fontExt);
+    std::string fontOutName = std::format("{}{}{}", savePath, fontName, ".png");
+    std::string fontOutNameMeta = std::format("{}{}{}", savePath, fontName, ".desc");
 
     const char *fontFile = fontSrc.c_str();
     FT_Library library;
@@ -127,6 +129,7 @@ void pipeline_build_font_atlas(const std::string &path,
         stbi_write_png(fontOutName.c_str(), int32_t(maxTexWidth), int32_t(maxTexHeight), 4, png_data, int32_t(maxTexWidth) * 4);
         delete[] png_data;
     }
+    log_info("font atlas: %s \n", fontOutName.c_str());
     {
         AtlasInfo info{};
         info.version = ATLAS_INFO_VERSION_0;
@@ -137,6 +140,7 @@ void pipeline_build_font_atlas(const std::string &path,
         info.atlasHeight = maxTexHeight;
         pipeline_save_atlas_info(&info, fontOutNameMeta);
     }
+    log_info("font desc: %s \n", fontOutNameMeta.c_str());
 
     delete[] glyphInfo;
     delete[] glyphText;
@@ -145,7 +149,7 @@ void pipeline_build_font_atlas(const std::string &path,
 }
 
 void pipeline_save_atlas_info(const AtlasInfo *header, const std::string &fileSrc) {
-    FILE *fileWrite = fopen(fileSrc.c_str(), "wb");
+    FILE * fileWrite = fopen(fileSrc.c_str(), "wb");
     ASSERT_MSG(fileWrite != nullptr, "Err: failed to write atlas info at path: %s ", fileSrc.c_str())
 
     fwrite(header, sizeof(AtlasInfo), 1, fileWrite);
@@ -156,7 +160,7 @@ void pipeline_save_atlas_info(const AtlasInfo *header, const std::string &fileSr
 
 AtlasInfo *pipeline_load_atlas_info(const std::string &fileSrc) {
     AtlasInfo *atlasInfo = new AtlasInfo;
-    FILE *fileRead = fopen(fileSrc.c_str(), "rb");
+    FILE * fileRead = fopen(fileSrc.c_str(), "rb");
     ASSERT_MSG(fileRead != nullptr, "Err: failed to load atlas info at path: %s ", fileSrc.c_str())
 
     fread(atlasInfo, sizeof(AtlasInfo), 1, fileRead);
@@ -169,8 +173,16 @@ AtlasInfo *pipeline_load_atlas_info(const std::string &fileSrc) {
 
 //===pipeline tests==========
 void test_load_atlas_info() {
-    pipeline_build_font_atlas(PIPELINE_FONT_DIR, "JetBrainsMono-Regular", ".ttf", 48, 512);
-    auto info = pipeline_load_atlas_info(PIPELINE_FONT_DIR "JetBrainsMono-Regular" ".desc");
+    pipeline_build_font_atlas("JetBrainsMono-Regular", ".ttf", 48, 512);
+    auto info = pipeline_load_atlas_info(CLIENT_RUNTIME_FONT_DIR "JetBrainsMono-Regular" ".desc");
     delete[] info->glyphs;
     delete info;
+}
+
+void pipeline_font_atlas_log() {
+    log_info("\n")
+    log_info("===========================\n")
+    log_info("===BUILDING FONTS==========\n")
+    log_info("===========================\n")
+    log_info("\n")
 }

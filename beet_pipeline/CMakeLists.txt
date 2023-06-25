@@ -4,6 +4,9 @@ add_executable(beet_pipeline
         inc/pipeline/font_shared.h
         inc/pipeline/font_atlas.h
         src/font_atlas.cpp
+        inc/pipeline/pipeline_defines.h
+        inc/pipeline/shader_compile.h
+        src/shader_compile.cpp
         )
 
 ##===LIB TARGET DIR=======//
@@ -24,14 +27,28 @@ target_link_libraries(beet_pipeline
         fmt::fmt
         )
 
+##====SHADER DEPT=========//
+##https://gist.github.com/evilactually/a0d191701cb48f157b05be7f74d79396
+if (${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL AMD64)
+    set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}\\Bin\\glslangValidator.exe")
+else ()
+    set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}\\Bin32\\glslangValidator.exe")
+endif ()
+
+## INFO: string replace "\\" with "/" for environment variables due to cmake
+## not correctly parsing the $ENV path correctly on windows :^(
+string(REPLACE "\\" "/" GLSL_VALIDATOR_WINDOWS_PATH_FIX ${GLSL_VALIDATOR})
+target_compile_definitions(beet_pipeline PUBLIC GLSL_VALIDATOR_EXE_PATH="${GLSL_VALIDATOR_WINDOWS_PATH_FIX}")
+
 ##===PROPERTIES===========//
 set_target_properties(beet_pipeline PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
 set_target_properties(beet_pipeline PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/dist/pipeline/bin")
-set_target_properties(beet_pipeline PROPERTIES OUTPUT_NAME beet_client)
+set_target_properties(beet_pipeline PROPERTIES OUTPUT_NAME beet_pipeline)
 
 ##===DEBUG================//
 target_compile_definitions(beet_pipeline PUBLIC BEET_PIPELINE=1)
 target_compile_definitions(beet_pipeline PUBLIC "BEET_CMAKE_RES_DIR=\"${BEET_CMAKE_ROOT_DIR}/res/\"")
+target_compile_definitions(beet_pipeline PUBLIC "BEET_CMAKE_CLIENT_RES_DIR=\"${CMAKE_BINARY_DIR}/dist/client/res/\"")
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
     target_compile_definitions(beet_pipeline PUBLIC BEET_DEBUG=1)
