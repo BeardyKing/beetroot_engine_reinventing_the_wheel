@@ -1,4 +1,5 @@
 #include <pipeline/font_atlas.h>
+#include <pipeline/pipeline_cache.h>
 
 #include <string>
 #include <array>
@@ -24,10 +25,22 @@ void pipeline_build_font_atlas(const std::string &fontName,
 
     const std::string readPath = PIPELINE_FONT_DIR;
     const std::string savePath = CLIENT_RUNTIME_FONT_DIR;
+
+    std::string fontSrc = std::format("{}{}{}", readPath, fontName, fontExt);
+    std::string fontAtlasOutName = std::format("{}{}{}", savePath, fontName, ".png");
+    std::string fontAtlasDescOutName = std::format("{}{}{}", savePath, fontName, ".desc");
+
+    if (!pipeline_cache_should_convert(fontAtlasOutName, fontSrc) &&
+        !pipeline_cache_should_convert(fontAtlasDescOutName, fontSrc)) {
+        return;
+    }
+
     const uint32_t dotSize = 6;
 
-    const std::array<CharRanges, 1> supportedRanges{
-            basicLatin,
+    const CharRanges invalid_character{0xFFFD, 0xFFFE};
+    const std::array<CharRanges, 2> supportedRanges{
+            invalid_character,
+            basic_latin,
     };
 
     uint32_t glyphCount{};
@@ -49,13 +62,11 @@ void pipeline_build_font_atlas(const std::string &fontName,
     const uint32_t pixelCount = maxTexWidth * maxTexHeight;
     // render glyphs to atlas
     char *pixels = (char *) new char[pixelCount];
+    memset(pixels, 0, sizeof(char) * pixelCount);
+
     int32_t pen_x = 0, pen_y = 0;
 
     GlyphInfo *glyphInfo = new GlyphInfo[glyphCount];
-
-    std::string fontSrc = std::format("{}{}{}", readPath, fontName, fontExt);
-    std::string fontOutName = std::format("{}{}{}", savePath, fontName, ".png");
-    std::string fontOutNameMeta = std::format("{}{}{}", savePath, fontName, ".desc");
 
     const char *fontFile = fontSrc.c_str();
     FT_Library library;
@@ -120,16 +131,18 @@ void pipeline_build_font_atlas(const std::string &fontName,
 
     {
         char *png_data = new char[maxTexWidth * maxTexHeight * 4];
+        memset(png_data, 0, sizeof(char) * (maxTexWidth * maxTexHeight * 4));
+
         for (int i = 0; i < (maxTexWidth * maxTexHeight); ++i) {
             png_data[i * 4 + 0] |= pixels[i];
             png_data[i * 4 + 1] |= pixels[i];
             png_data[i * 4 + 2] |= pixels[i];
             png_data[i * 4 + 3] = 0xff;
         }
-        stbi_write_png(fontOutName.c_str(), int32_t(maxTexWidth), int32_t(maxTexHeight), 4, png_data, int32_t(maxTexWidth) * 4);
+        stbi_write_png(fontAtlasOutName.c_str(), int32_t(maxTexWidth), int32_t(maxTexHeight), 4, png_data, int32_t(maxTexWidth) * 4);
         delete[] png_data;
     }
-    log_info("font atlas: %s \n", fontOutName.c_str());
+    log_info("font atlas: %s \n", fontAtlasOutName.c_str());
     {
         AtlasInfo info{};
         info.version = ATLAS_INFO_VERSION_0;
@@ -138,9 +151,9 @@ void pipeline_build_font_atlas(const std::string &fontName,
         info.fontSize = fontSize;
         info.atlasWidth = maxTexWidth;
         info.atlasHeight = maxTexHeight;
-        pipeline_save_atlas_info(&info, fontOutNameMeta);
+        pipeline_save_atlas_info(&info, fontAtlasDescOutName);
     }
-    log_info("font desc: %s \n", fontOutNameMeta.c_str());
+    log_info("font desc: %s \n", fontAtlasDescOutName.c_str());
 
     delete[] glyphInfo;
     delete[] glyphText;

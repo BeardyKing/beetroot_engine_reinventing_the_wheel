@@ -7,6 +7,8 @@ add_executable(beet_pipeline
         inc/pipeline/pipeline_defines.h
         inc/pipeline/shader_compile.h
         src/shader_compile.cpp
+        inc/pipeline/pipeline_cache.h
+        src/pipeline_cache.cpp
         )
 
 ##===LIB TARGET DIR=======//
