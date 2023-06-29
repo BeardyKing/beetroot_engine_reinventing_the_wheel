@@ -1,10 +1,15 @@
 #include <pipeline/pipeline_cache.h>
+#include <pipeline/pipeline_defines.h>
 
 #include <shared/log.h>
 
 #include <sys/stat.h>
 
 bool pipeline_cache_should_convert(const std::string &toPath, const std::string &fromPath) {
+    if (PIPELINE_CACHE_ALWAYS_CONVERT) {
+        return true;
+    }
+
     struct stat toFileStat{};
     struct stat fromFileStat{};
 

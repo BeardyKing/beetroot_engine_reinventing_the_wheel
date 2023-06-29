@@ -15,8 +15,6 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
-#include <hb.h>
-#include <hb-ft.h>
 
 void pipeline_build_font_atlas(const std::string &fontName,
                                const std::string &fontExt,
@@ -67,6 +65,7 @@ void pipeline_build_font_atlas(const std::string &fontName,
     int32_t pen_x = 0, pen_y = 0;
 
     GlyphInfo *glyphInfo = new GlyphInfo[glyphCount];
+    memset(glyphInfo, 0, sizeof(GlyphInfo) * glyphCount);
 
     const char *fontFile = fontSrc.c_str();
     FT_Library library;
@@ -81,20 +80,10 @@ void pipeline_build_font_atlas(const std::string &fontName,
     FT_Error sizeRes = FT_Set_Char_Size(face, fontSize << dotSize, fontSize << dotSize, 0, 0);
     ASSERT_MSG(sizeRes == FT_Err_Ok, "Err failed to set font size %u", fontSize);
 
-    hb_font_t *hbFont = hb_ft_font_create(face, nullptr);
-    hb_buffer_t *hbBuffer = hb_buffer_create();
-
-    hb_buffer_add_utf32(hbBuffer, glyphText, int32_t(glyphCount), 0, -1);
-    hb_buffer_guess_segment_properties(hbBuffer);
-    hb_shape(hbFont, hbBuffer, nullptr, 0);
-
-    uint32_t hbGlyphCount = hb_buffer_get_length(hbBuffer);
-    hb_glyph_info_t *bhInfo = hb_buffer_get_glyph_infos(hbBuffer, &glyphCount);
-    hb_glyph_position_t *pos = hb_buffer_get_glyph_positions(hbBuffer, &glyphCount);
-
-    for (uint32_t i = 0; i < hbGlyphCount; ++i) {
-        FT_Error glyphRes = FT_Load_Glyph(face, bhInfo[i].codepoint, FT_LOAD_RENDER);
-        ASSERT_MSG(glyphRes == FT_Err_Ok, "Err failed to load char %u", bhInfo[i].codepoint);
+    for (uint32_t i = 0; i < glyphCount; ++i) {
+        printf("%c\n", glyphText[i]);
+        FT_Error glyphRes = FT_Load_Char(face, glyphText[i], FT_LOAD_RENDER);
+        ASSERT_MSG(glyphRes == FT_Err_Ok, "Err failed to load char %u", glyphText[i]);
 
         FT_Bitmap *bmp = &face->glyph->bitmap;
         if (pen_x + bmp->width >= maxTexWidth) {
@@ -108,23 +97,20 @@ void pipeline_build_font_atlas(const std::string &fontName,
                 int y = pen_y + row;
                 const uint32_t pixelIndex = y * maxTexWidth + x;
                 ASSERT_MSG(pixelIndex < pixelCount, "Err: did not allocate enough space [%u] of [%u] for glyph index [%u] of [%u]\n", pixelIndex,
-                           pixelCount, i, hbGlyphCount);
-                pixels[pixelIndex] = bmp->buffer[row * bmp->pitch + col];
+                           pixelCount, i, glyphCount);
+                pixels[pixelIndex] = (char) bmp->buffer[row * bmp->pitch + col];
             }
         }
-
         {
             //font .desc info
-            glyphInfo[i].glyph = bhInfo[i].codepoint;
-
             glyphInfo[i].x0 = pen_x;
             glyphInfo[i].y0 = pen_y;
-            glyphInfo[i].x1 = pen_x + bmp->width;
-            glyphInfo[i].y1 = pen_y + bmp->rows;
+            glyphInfo[i].x1 = int32_t(pen_x + bmp->width);
+            glyphInfo[i].y1 = int32_t(pen_y + bmp->rows);
 
-            glyphInfo[i].x_off = pos[i].x_offset;//face->glyph->bitmap_left;
-            glyphInfo[i].y_off = pos[i].y_offset;//face->glyph->bitmap_top;
-            glyphInfo[i].advance = pos[i].x_advance >> dotSize;
+            glyphInfo[i].x_off = face->glyph->bitmap_left;
+            glyphInfo[i].y_off = face->glyph->bitmap_top;
+            glyphInfo[i].advance = face->glyph->advance.x >> dotSize;
         }
         pen_x += int32_t(bmp->width + 1);
     }
@@ -147,7 +133,7 @@ void pipeline_build_font_atlas(const std::string &fontName,
         AtlasInfo info{};
         info.version = ATLAS_INFO_VERSION_0;
         info.glyphs = glyphInfo;
-        info.glyphCount = hbGlyphCount;
+        info.glyphCount = glyphCount;
         info.fontSize = fontSize;
         info.atlasWidth = maxTexWidth;
         info.atlasHeight = maxTexHeight;
@@ -162,7 +148,7 @@ void pipeline_build_font_atlas(const std::string &fontName,
 }
 
 void pipeline_save_atlas_info(const AtlasInfo *header, const std::string &fileSrc) {
-    FILE * fileWrite = fopen(fileSrc.c_str(), "wb");
+    FILE *fileWrite = fopen(fileSrc.c_str(), "wb");
     ASSERT_MSG(fileWrite != nullptr, "Err: failed to write atlas info at path: %s ", fileSrc.c_str())
 
     fwrite(header, sizeof(AtlasInfo), 1, fileWrite);
@@ -173,7 +159,7 @@ void pipeline_save_atlas_info(const AtlasInfo *header, const std::string &fileSr
 
 AtlasInfo *pipeline_load_atlas_info(const std::string &fileSrc) {
     AtlasInfo *atlasInfo = new AtlasInfo;
-    FILE * fileRead = fopen(fileSrc.c_str(), "rb");
+    FILE *fileRead = fopen(fileSrc.c_str(), "rb");
     ASSERT_MSG(fileRead != nullptr, "Err: failed to load atlas info at path: %s ", fileSrc.c_str())
 
     fread(atlasInfo, sizeof(AtlasInfo), 1, fileRead);
