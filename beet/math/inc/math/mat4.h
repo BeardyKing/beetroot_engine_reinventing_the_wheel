@@ -9,7 +9,7 @@ mat4 mat4f_mul(const mat4 &lhs, const mat4 &rhs);
 
 mat4 mat4f_rotation_y(float angle);
 mat4 mat4f_perspective(float fovY, float aspectRatio, float zNear, float zFar);
-mat4 mat4f_look_at(vec3 at, vec3 eye, vec3 up);
+mat4 mat4f_look_at(vec3f at, vec3f eye, vec3f up);
 
 struct mat4 {
     union {

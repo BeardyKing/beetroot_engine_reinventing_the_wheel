@@ -7,8 +7,8 @@ add_library(math
         inc/math/mat4.h
         src/mat4.cpp
         inc/math/vec3.h
-        src/vec3.cpp
-        src/utilities.cpp)
+        src/vec3f.cpp
+        src/utilities.cpp inc/math/vec4.h)
 
 ##===LIB TARGET DIR=======//
 target_include_directories(math

@@ -16,6 +16,10 @@ void build_spv_from_source() {
         pipeline_build_shader_spv("fallback/fallback.vert", "fallback/fallback.vert.spv");
         pipeline_build_shader_spv("fallback/fallback.frag", "fallback/fallback.frag.spv");
     }
+    {
+        pipeline_build_shader_spv("font/font.vert", "font/font.vert.spv");
+        pipeline_build_shader_spv("font/font.frag", "font/font.frag.spv");
+    }
 }
 
 int main() {

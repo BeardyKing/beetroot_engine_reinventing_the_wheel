@@ -5,6 +5,7 @@ add_library(shared
         inc/shared/log.h
         src/log.cpp
         src/bit_utils.cpp
+        inc/shared/db_types.h
         )
 
 ##===LIB TARGET DIR=======//
@@ -19,6 +20,11 @@ target_include_directories(shared
 ##===LIB STB==============//
 include_directories(shared
         third/stb/
+        )
+
+##===LIB DEPENDENCIES=====//
+target_link_libraries(shared
+        math
         )
 
 set_target_properties(shared PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)

@@ -7,6 +7,19 @@ add_library(gfx
         inc/gfx/gfx_interface.h
         src/vulkan_device.cpp
         inc/gfx/vulkan_platform_defines.h
+        inc/gfx/gfx_font.h
+        src/gfx_font.cpp inc/gfx/gfx_fallback.h
+        src/gfx_fallback.cpp
+        inc/gfx/gfx_types.h
+        inc/gfx/gfx_headers.h
+        inc/gfx/gfx_utils.h
+        src/gfx_utils.cpp
+        inc/gfx/gfx_samplers.h
+        src/gfx_samplers.cpp
+        inc/gfx/gfx_resource_db.h
+        src/gfx_resource_db.cpp
+        inc/gfx/gfx_command.h
+        src/gfx_command.cpp
         )
 
 ##===LIB TARGET DIR=======//

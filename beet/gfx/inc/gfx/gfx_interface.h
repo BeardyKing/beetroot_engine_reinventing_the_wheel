@@ -1,6 +1,8 @@
 #ifndef BEETROOT_GFX_INTERFACE_H
 #define BEETROOT_GFX_INTERFACE_H
 
+#include <vma/vk_mem_alloc.h>
+
 #include <vulkan/vulkan_core.h>
 
 //===api=====================
@@ -43,15 +45,6 @@ void gfx_cleanup_samplers();
 
 void gfx_create_allocator();
 void gfx_cleanup_allocator();
-
-void gfx_create_fallback_texture();
-void gfx_cleanup_fallback_texture();
-
-void gfx_create_fallback_mesh();
-void gfx_cleanup_fallback_mesh();
-
-void gfx_create_fallback_descriptors();
-void gfx_cleanup_fallback_descriptors();
 
 void gfx_create_swapchain();
 void gfx_recreate_swapchain();

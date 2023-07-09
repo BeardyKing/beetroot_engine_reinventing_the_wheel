@@ -1,8 +1,10 @@
 #ifndef BEETROOT_VULKAN_PLATFORM_DEFINES_H
 #define BEETROOT_VULKAN_PLATFORM_DEFINES_H
 
+//#include <gfx_headers.h>
+
 //===runtime=================
-const uint32_t BEET_VK_COMMAND_BUFFER_COUNT = 2;
+static const uint32_t BEET_VK_COMMAND_BUFFER_COUNT = 2;
 
 //===surface=================
 #if defined (_WIN32)
@@ -17,12 +19,12 @@ const uint32_t BEET_VK_COMMAND_BUFFER_COUNT = 2;
 
 //==debug====================
 #if BEET_DEBUG
-const int BEET_DEBUG_VK_FORCE_GPU_SELECTION = 0; // ignore [-1] force select [0 .. UINT32_MAX]
+static const int BEET_DEBUG_VK_FORCE_GPU_SELECTION = 0; // ignore [-1] force select [0 .. UINT32_MAX]
 #endif
 
 //===extensions==============
-const int BEET_VK_EXTENSION_COUNT = 3;
-const char *vulkanExtensions[BEET_VK_EXTENSION_COUNT]{
+static const int BEET_VK_EXTENSION_COUNT = 3;
+static const char *beetVulkanExtensions[BEET_VK_EXTENSION_COUNT]{
         VK_KHR_SURFACE_EXTENSION_NAME,
         BEET_VK_SURFACE_EXTENSION_NAME,
         VK_EXT_DEBUG_UTILS_EXTENSION_NAME,
@@ -31,8 +33,8 @@ const char *vulkanExtensions[BEET_VK_EXTENSION_COUNT]{
 //===validation==============
 #define BEET_VK_LAYER_VALIDATION "VK_LAYER_KHRONOS_validation"
 
-const int BEET_VK_VALIDATION_COUNT = 1;
-const char *vulkanValidations[BEET_VK_EXTENSION_COUNT]{
+static const int BEET_VK_VALIDATION_COUNT = 1;
+static const char *beetVulkanValidations[BEET_VK_EXTENSION_COUNT]{
         BEET_VK_LAYER_VALIDATION,
 };
 
@@ -55,5 +57,18 @@ static const VkDebugUtilsMessageTypeFlagsEXT BEET_VK_DEBUG_UTILS_MESSAGE_TYPE =
         VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
         VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
         VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+
+//===api version=============
+#if defined(VK_VERSION_1_3)
+#define BEET_MAX_VK_API_VERSION VK_API_VERSION_1_3
+#elif defined(VK_VERSION_1_2)
+#define BEET_MAX_VK_API_VERSION VK_API_VERSION_1_2
+#elif defined(VK_VERSION_1_1)
+#define BEET_MAX_VK_API_VERSION VK_API_VERSION_1_1
+#elif defined(VK_VERSION_1_0)
+#define BEET_MAX_VK_API_VERSION VK_API_VERSION_1_0
+#else
+SANITY_CHECK()
+#endif
 
 #endif //BEETROOT_VULKAN_PLATFORM_DEFINES_H

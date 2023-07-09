@@ -46,10 +46,10 @@ mat4 mat4f_perspective(float fovY, float aspectRatio, float zNear, float zFar) {
             0.0f, 0.0f, -zNear * zFar / (zFar - zNear), 0.0f};
 }
 
-mat4 mat4f_look_at(vec3 at, vec3 eye, vec3 up) {
-    vec3 zAxis = vec3f_normalized(at - eye);
-    vec3 xAxis = vec3f_normalized(vec3f_cross(up, zAxis));
-    vec3 yAxis = vec3f_cross(zAxis, xAxis);
+mat4 mat4f_look_at(vec3f at, vec3f eye, vec3f up) {
+    vec3f zAxis = vec3f_normalized(at - eye);
+    vec3f xAxis = vec3f_normalized(vec3f_cross(up, zAxis));
+    vec3f yAxis = vec3f_cross(zAxis, xAxis);
     return {
             xAxis.x, yAxis.x, zAxis.x, 0.0f,
             xAxis.y, yAxis.y, zAxis.y, 0.0f,
