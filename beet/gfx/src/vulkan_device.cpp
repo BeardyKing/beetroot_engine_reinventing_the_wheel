@@ -17,7 +17,6 @@
 
 //===internal structs========
 
-
 GfxDevice *g_gfxDevice;
 
 struct VulkanProperties {
@@ -82,7 +81,6 @@ void validate_extensions() {
         ASSERT_MSG(result, "Err: failed find support for extension [%s]", beetVulkanExtensions[i]);
     }
 }
-
 
 void validate_validation_layers() {
     for (uint8_t i = 0; i < BEET_VK_VALIDATION_COUNT; i++) {
@@ -976,7 +974,6 @@ void gfx_reset_graphics_command_buffer() {
 void gfx_update(const double &deltaTime) {
     static double timePassed{};
     timePassed += deltaTime;
-    log_info("%f\n", timePassed);
 
     VkResult res = acquire_next_swapchain_image();
     if (res == VK_ERROR_OUT_OF_DATE_KHR) {

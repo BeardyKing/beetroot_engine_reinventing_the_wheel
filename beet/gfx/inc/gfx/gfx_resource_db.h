@@ -10,6 +10,9 @@ void gfx_db_cleanup();
 uint32_t gfx_db_add_camera(const Camera &camera);
 Camera *gfx_db_get_camera(uint32_t index);
 
+uint32_t gfx_db_add_camera_entity(const CameraEntity &camera);
+CameraEntity *gfx_db_get_camera_entity(uint32_t index);
+
 uint32_t gfx_db_add_lit_entity(const LitEntity &litEntity);
 LitEntity *gfx_db_get_lit_entity(uint32_t index);
 
@@ -21,5 +24,8 @@ GfxTexture *gfx_db_get_texture(uint32_t index);
 
 uint32_t gfx_db_add_descriptor_set(const VkDescriptorSet &descriptorSet);
 VkDescriptorSet *gfx_db_get_descriptor_set(uint32_t index);
+
+uint32_t gfx_db_add_transform(const Transform &litMaterial);
+Transform *gfx_db_get_transform(uint32_t index);
 
 #endif //BEETROOT_GFX_RESOURCE_DB_H

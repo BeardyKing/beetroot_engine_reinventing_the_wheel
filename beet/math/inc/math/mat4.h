@@ -1,32 +1,10 @@
 #ifndef BEETROOT_MAT4_H
 #define BEETROOT_MAT4_H
 
-#include <math/vec3.h>
+#include <glm/mat4x2.hpp>
+#include <glm/mat4x3.hpp>
+#include <glm/mat4x4.hpp>
 
-struct mat4;
-
-mat4 mat4f_mul(const mat4 &lhs, const mat4 &rhs);
-
-mat4 mat4f_rotation_y(float angle);
-mat4 mat4f_perspective(float fovY, float aspectRatio, float zNear, float zFar);
-mat4 mat4f_look_at(vec3f at, vec3f eye, vec3f up);
-
-struct mat4 {
-    union {
-        struct {
-            float _11, _12, _13, _14;
-            float _21, _22, _23, _24;
-            float _31, _32, _33, _34;
-            float _41, _42, _43, _44;
-        };
-        float data[4][4]; // [row][column]
-    };
-
-
-    mat4 operator*(const mat4 &rhs) const {
-        return mat4f_mul(*this, rhs);
-    };
-};
-
+#include <glm/gtc/matrix_transform.hpp>
 
 #endif //BEETROOT_MAT4_H

@@ -7,6 +7,9 @@
 
 #include <shared/assert.h>
 #include <shared/log.h>
+
+#include <math/mat4.h>
+#include <math/quat.h>
 #include <math/utilities.h>
 
 struct VulkanFallbacks {
@@ -22,7 +25,6 @@ struct VulkanFallbacks {
 
     VkDescriptorSetLayout descriptorSetLayout;
     VkDescriptorPool descriptorPool;
-//    VkDescriptorSet descriptorSet;
 
     VkPipelineLayout pipelineLayout;
     VkPipeline pipeline;
@@ -32,8 +34,21 @@ VulkanFallbacks g_vulkanFallbacks;
 extern struct GfxDevice *g_gfxDevice;
 
 void gfx_fallback_record_render_pass(VkCommandBuffer &cmdBuffer) {
-    // Record geometry pass
+    // get active camera
+    CameraEntity *camEntity = gfx_db_get_camera_entity(0);
+    Camera *camera = gfx_db_get_camera(camEntity->cameraIndex);
+    Transform *camTransform = gfx_db_get_transform(camEntity->transformIndex);
 
+    auto camForward = quat(camTransform->rotation) * WORLD_FORWARD;
+    vec3f lookTarget = camTransform->position + camForward;
+
+    mat4 view = lookAt(camTransform->position, lookTarget, WORLD_UP);
+    mat4 proj = perspective(as_radians(camera->fov), (float) g_gfxDevice->vkExtent.width / (float) g_gfxDevice->vkExtent.height, camera->zNear,
+                            camera->zFar);
+    proj[1][1] *= -1;
+    mat4 viewProj = proj * view;
+
+    // Record geometry pass
     const uint32_t clearValueCount = 2;
     VkClearValue clearValues[clearValueCount]{};
     clearValues[0].color = {{0.5f, 0.092, 0.167f, 1.0f}};
@@ -51,9 +66,10 @@ void gfx_fallback_record_render_pass(VkCommandBuffer &cmdBuffer) {
 
     vkCmdBeginRenderPass(cmdBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
     {
-        LitEntity* entity = gfx_db_get_lit_entity(0);
-        LitMaterial* material = gfx_db_get_lit_material(entity->materialIndex);
-        VkDescriptorSet* descriptorSet = gfx_db_get_descriptor_set(material->descriptorSetIndex);
+        LitEntity *entity = gfx_db_get_lit_entity(0);
+        LitMaterial *material = gfx_db_get_lit_material(entity->materialIndex);
+        VkDescriptorSet *descriptorSet = gfx_db_get_descriptor_set(material->descriptorSetIndex);
+        Transform *transform = gfx_db_get_transform(entity->transformIndex);
 
         vkCmdBindPipeline(
                 cmdBuffer,
@@ -61,20 +77,21 @@ void gfx_fallback_record_render_pass(VkCommandBuffer &cmdBuffer) {
                 g_vulkanFallbacks.pipeline
         );
 
-        mat4 view = mat4f_look_at({0.f, 0.f, 0.f}, {0.f, -2.f, 4.f}, {0.f, 1.f, 0.f});
-        mat4 proj = mat4f_perspective(as_radians(90.0), (float) g_gfxDevice->vkExtent.width / (float) g_gfxDevice->vkExtent.height, 0.1f, 1000.f);
-        mat4 viewProj = view * proj;
+        mat4 model = translate(mat4(1.0f), transform->position) * toMat4(quat(transform->rotation)) * scale(mat4(1.0f), transform->scale);
 
         vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, g_vulkanFallbacks.pipelineLayout, 0, 1,
                                 descriptorSet, 0, nullptr);
 
-        mat4 model = mat4f_rotation_y((float) 0);
-
         UniformBufferObject ubo = {};
-        ubo.mvp = model * viewProj;
-        vkCmdPushConstants(cmdBuffer, g_vulkanFallbacks.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0,
+        ubo.mvp = viewProj * model;
+
+        vkCmdPushConstants(cmdBuffer,
+                           g_vulkanFallbacks.pipelineLayout,
+                           VK_SHADER_STAGE_VERTEX_BIT,
+                           0,
                            sizeof(UniformBufferObject),
-                           &ubo);
+                           &ubo
+        );
 
         VkBuffer vertexBuffers[] = {g_vulkanFallbacks.vertexBuffer};
         VkDeviceSize offsets[] = {0};
@@ -418,7 +435,7 @@ void gfx_create_fallback_pipeline_layout() {
 }
 
 
-void gfx_cleanup_fallback_texture(GfxTexture& gfxTexture) {
+void gfx_cleanup_fallback_texture(GfxTexture &gfxTexture) {
     vkDestroyImageView(g_gfxDevice->vkDevice, gfxTexture.imageView, nullptr);
     gfxTexture.imageView = VK_NULL_HANDLE;
 
@@ -587,7 +604,7 @@ void gfx_create_fallback_mesh() {
     vmaDestroyBuffer(g_gfxDevice->vmaAllocator, stagingVertexBuffer, stagingVertexBufferAlloc);
 }
 
-void gfx_create_fallback_texture(GfxTexture& outTexture) {
+void gfx_create_fallback_texture(GfxTexture &outTexture) {
     ASSERT_MSG(g_gfxDevice->vmaAllocator, "Err: vma allocator hasn't been created yet");
 
     const size_t RGBA8_SIZE = sizeof(uint32_t);
@@ -744,7 +761,7 @@ void gfx_create_fallback_texture(GfxTexture& outTexture) {
     ASSERT_MSG(imageViewRes == VK_SUCCESS, "Err: failed to create image view");
 }
 
-void gfx_fallback_update_material_descriptor(VkDescriptorSet &outDescriptorSet, const GfxTexture& albedoTexture){
+void gfx_fallback_update_material_descriptor(VkDescriptorSet &outDescriptorSet, const GfxTexture &albedoTexture) {
 // TODO:    This code is needed to update the material descriptors whenever there is a change resource
 //          i.e texture/value change. it is likely in release state that most resources would be static
 //          but this is not the case when we are using the editor as we update resource values quite often.

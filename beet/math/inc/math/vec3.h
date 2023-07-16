@@ -1,33 +1,18 @@
 #ifndef BEETROOT_VEC3_H
 #define BEETROOT_VEC3_H
 
-struct vec3f;
+#include <cstdint>
+#include <glm/vec3.hpp>
 
-vec3f vec3f_mul(const vec3f &lhs, float scalar);
-vec3f vec3f_sub(const vec3f &lhs, const vec3f &rhs);
-vec3f vec3f_add(const vec3f &lhs, const vec3f &rhs);
+using namespace glm;
 
-vec3f vec3f_normalized(const vec3f &rhs);
-float vec3f_dot(const vec3f &lhs, const vec3f &rhs);
-vec3f vec3f_cross(const vec3f &lhs, const vec3f &rhs);
+using vec3i = vec<3, int32_t>;
+using vec3u = vec<3, uint32_t>;
+using vec3f = vec<3, float>;
+using vec3d = vec<3, double>;
 
-struct vec3f {
-    union {
-        struct {
-            float x, y, z;
-        };
-        struct {
-            float r, g, b;
-        };
-        struct {
-            float data[3];
-        };
-    };
-
-    vec3f operator+(const vec3f &rhs) const { return vec3f_add(*this, rhs); }
-    vec3f operator-(const vec3f &rhs) const { return vec3f_sub(*this, rhs); }
-    vec3f operator*(float s) const { return vec3f_mul(*this, s); }
-};
-
+#define WORLD_UP        vec3f{0, 1, 0}
+#define WORLD_FORWARD   vec3f{0, 0,-1}
+#define WORLD_RIGHT     vec3f{-1, 0, 0}
 
 #endif //BEETROOT_VEC3_H

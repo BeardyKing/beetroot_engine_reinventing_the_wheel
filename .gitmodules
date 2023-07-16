@@ -13,3 +13,6 @@
 [submodule "beet/gfx/third/harfbuzz"]
 	path = beet/gfx/third/harfbuzz
 	url = https://github.com/harfbuzz/harfbuzz.git
+[submodule "beet/math/third/glm"]
+	path = beet/math/third/glm
+	url = https://github.com/g-truc/glm.git

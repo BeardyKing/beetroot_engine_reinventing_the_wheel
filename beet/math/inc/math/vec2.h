@@ -2,49 +2,13 @@
 #define BEETROOT_VEC2_H
 
 #include <cstdint>
+#include <glm/vec2.hpp>
 
-struct vec2f {
-    union {
-        struct {
-            float x, y;
-        };
-        struct {
-            float r, g;
-        };
-    };
-};
+using namespace glm;
 
-struct vec2d {
-    union {
-        struct {
-            double x, y;
-        };
-        struct {
-            double r, g;
-        };
-    };
-};
-
-struct vec2i {
-    union {
-        struct {
-            int32_t x, y;
-        };
-        struct {
-            int32_t r, g;
-        };
-    };
-};
-
-struct vec2u {
-    union {
-        struct {
-            uint32_t x, y;
-        };
-        struct {
-            uint32_t r, g;
-        };
-    };
-};
+using vec2i = vec<2, int32_t>;
+using vec2u = vec<2, uint32_t>;
+using vec2f = vec<2, float>;
+using vec2d = vec<2, double>;
 
 #endif //BEETROOT_VEC2_H

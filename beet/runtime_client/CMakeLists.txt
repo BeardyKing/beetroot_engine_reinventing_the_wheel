@@ -1,6 +1,14 @@
 ##===EXE SOURCE===========//
 add_executable(beet_client
         main.cpp
+        inc/client/script_editor_camera.h
+        src/script_editor_camera.cpp
+        )
+
+##===LIB TARGET DIR=======//
+target_include_directories(gfx
+        PUBLIC inc
+        PRIVATE inc/client
         )
 
 target_link_libraries(beet_client

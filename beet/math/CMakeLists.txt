@@ -1,25 +1,26 @@
 ##===LIB SOURCE===========//
 add_library(math
         inc/math/utilities.h
+        src/utilities.cpp
 
         inc/math/vec2.h
-        src/vec2.cpp
-        inc/math/mat4.h
-        src/mat4.cpp
         inc/math/vec3.h
-        src/vec3f.cpp
-        src/utilities.cpp inc/math/vec4.h)
+        inc/math/vec4.h
+        inc/math/mat4.h
+        inc/math/quat.h)
+
+##===LIB GLM==============//
+add_subdirectory(third/glm)
+
+##===LIB DEPENDENCIES=====//
+target_link_libraries(math
+        glm
+        )
 
 ##===LIB TARGET DIR=======//
 target_include_directories(math
         PUBLIC inc
         PRIVATE inc/math
-        )
-
-##===LIB INSTALL RULES====//
-install(TARGETS math
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
         )
 
 ##===DEBUG================//

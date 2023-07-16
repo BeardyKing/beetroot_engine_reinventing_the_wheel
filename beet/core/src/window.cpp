@@ -33,6 +33,7 @@ struct WindowInfo {
 
     CursorState currentCursorState;
     vec2i lockedCursorPosition;
+    vec2i virtualCursorPosition;
     bool cursorOverWindow;
 };
 
@@ -77,10 +78,26 @@ LRESULT CALLBACK window_procedure_callback(HWND hwnd, UINT uMsg, WPARAM wParam, 
             input_key_up_callback((char) wParam);
             break;
         };
+        case WM_INPUT: {
+            unsigned size = sizeof(RAWINPUT);
+            static RAWINPUT raw[sizeof(RAWINPUT)];
+
+            GetRawInputData((HRAWINPUT) lParam, RID_INPUT, raw, &size, sizeof(RAWINPUTHEADER));
+            g_windowInfo->virtualCursorPosition.x += raw->data.mouse.lLastX;
+            g_windowInfo->virtualCursorPosition.y += raw->data.mouse.lLastY;
+
+            input_mouse_move_callback(g_windowInfo->virtualCursorPosition.x,
+                                      g_windowInfo->virtualCursorPosition.y
+            );
+
+            //TODO:CORE consider moving other input callbacks to WM_INPUT i.e. WHEEL_DELTA and JOY PADS.
+            //          wheel `raw->data.mouse.usButtonData`
+            break;
+        }
         case WM_MOUSEMOVE: {
             const int32_t x = GET_X_LPARAM(lParam);
             const int32_t y = GET_Y_LPARAM(lParam);
-            input_mouse_move_callback(x, y);
+            input_mouse_windowed_position_callback(x, y);
             break;
         }
         case WM_RBUTTONDOWN: {
@@ -305,6 +322,15 @@ void window_create() {
     ASSERT_MSG(g_windowInfo->handle, "Err: Failed to create window.")
     ShowWindow(g_windowInfo->handle, SW_SHOWDEFAULT);
     g_windowInfo->shouldWindowClose = false;
+    {
+        RAWINPUTDEVICE rawInputDevice[1];
+        rawInputDevice[0].usUsagePage = 0x01;          // HID_USAGE_PAGE_GENERIC
+        rawInputDevice[0].usUsage = 0x02;              // HID_USAGE_GENERIC_MOUSE
+        rawInputDevice[0].dwFlags = RIDEV_INPUTSINK;
+        rawInputDevice[0].hwndTarget = g_windowInfo->handle;
+        auto result = RegisterRawInputDevices(rawInputDevice, 1, sizeof(rawInputDevice[0]));
+        ASSERT_MSG(result == TRUE, "Failed to register raw input devices");
+    }
 }
 
 void window_cleanup() {

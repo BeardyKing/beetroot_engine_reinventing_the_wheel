@@ -10,8 +10,10 @@ struct KeyInfo {
 };
 
 struct MouseInfo {
-    vec2i currentPosition{};
-    vec2i lastPosition{};
+    vec2i windowedPosition{};
+
+    vec2i virtualPosition{};
+    vec2i lastVirtualPosition{};
     vec2f moveDelta{};
     vec2f mouseSensitivity{};
 
@@ -33,9 +35,9 @@ Input *g_input;
 //===internal functions======
 void update_relative_mouse_position() {
     MouseInfo *mouseInfo = &g_input->mouse;
-    mouseInfo->moveDelta.x = (float) mouseInfo->currentPosition.x - (float) mouseInfo->lastPosition.x;
-    mouseInfo->moveDelta.y = (float) mouseInfo->currentPosition.y - (float) mouseInfo->lastPosition.y;
-    mouseInfo->lastPosition = mouseInfo->currentPosition;
+    mouseInfo->moveDelta.x = (float) mouseInfo->virtualPosition.x - (float) mouseInfo->lastVirtualPosition.x;
+    mouseInfo->moveDelta.y = (float) mouseInfo->virtualPosition.y - (float) mouseInfo->lastVirtualPosition.y;
+    mouseInfo->lastVirtualPosition = mouseInfo->virtualPosition;
 }
 
 void update_mouse_scroll() {
@@ -118,7 +120,7 @@ vec2f input_mouse_delta_raw() {
 }
 
 vec2i input_mouse_position() {
-    return g_input->mouse.currentPosition;
+    return g_input->mouse.windowedPosition;
 }
 
 void input_set_mouse_sensitivity(const vec2f sensitivity) {
@@ -171,8 +173,14 @@ void input_mouse_up_callback(const int32_t keyCode) {
 
 void input_mouse_move_callback(const int32_t x, const int32_t y) {
     MouseInfo *cursor = &g_input->mouse;
-    cursor->currentPosition.x = x;
-    cursor->currentPosition.y = y;
+    cursor->virtualPosition.x = x;
+    cursor->virtualPosition.y = y;
+}
+
+void input_mouse_windowed_position_callback(const int32_t x, const int32_t y) {
+    MouseInfo *cursor = &g_input->mouse;
+    cursor->windowedPosition.x = x;
+    cursor->windowedPosition.y = y;
 }
 
 void input_mouse_scroll_callback(const int32_t y) {

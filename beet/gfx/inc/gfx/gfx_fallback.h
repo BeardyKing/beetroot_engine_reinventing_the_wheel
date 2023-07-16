@@ -4,7 +4,7 @@
 #include <gfx/gfx_types.h>
 
 void gfx_fallback_record_render_pass(VkCommandBuffer& cmdBuffer);
-void gfx_fallback_update_material_descriptor(VkDescriptorSet &outDescriptorSet, const GfxTexture&\ albedoTexture);
+void gfx_fallback_update_material_descriptor(VkDescriptorSet &outDescriptorSet, const GfxTexture& albedoTexture);
 
 void gfx_create_fallback_pipeline_layout();
 

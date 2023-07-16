@@ -37,6 +37,6 @@ void input_mouse_up_callback(int32_t keyCode);
 
 void input_mouse_move_callback(int32_t x, int32_t y);
 void input_mouse_scroll_callback(int32_t y);
-
+void input_mouse_windowed_position_callback(int32_t x, int32_t y);
 
 #endif //BEETROOT_INPUT_H
