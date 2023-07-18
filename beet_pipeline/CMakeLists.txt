@@ -18,6 +18,13 @@ target_include_directories(beet_pipeline
         )
 
 ##===LIB THIRD PARTY======//
+##===LIB CUTTLEFISH=======//
+set(CUTTLEFISH_BUILD_S3TC ON)
+set(CUTTLEFISH_BUILD_ETC OFF)
+set(CUTTLEFISH_BUILD_ASTC OFF)
+set(CUTTLEFISH_BUILD_PVRTC OFF)
+add_subdirectory(third/Cuttlefish)
+
 ##===LIB FMT==============//
 add_subdirectory(third/fmt)
 
@@ -27,6 +34,7 @@ target_link_libraries(beet_pipeline
         harfbuzz
         freetype
         fmt::fmt
+        cuttlefish_lib
         )
 
 ##====SHADER DEPT=========//

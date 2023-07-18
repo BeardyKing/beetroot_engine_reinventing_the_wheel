@@ -12,8 +12,11 @@
 #define CLIENT_RUNTIME_SHADER_DIR BEET_CMAKE_CLIENT_RES_DIR "shaders/"
 
 //===font atlas==============
-
 #define PIPELINE_FONT_DIR PIPELINE_RES_DIR "fonts/"
 #define CLIENT_RUNTIME_FONT_DIR BEET_CMAKE_CLIENT_RES_DIR "fonts/"
+
+//===textures================
+#define PIPELINE_TEXTURE_DIR PIPELINE_RES_DIR "textures/"
+#define CLIENT_RUNTIME_TEXTURE_DIR BEET_CMAKE_CLIENT_RES_DIR "textures/"
 
 #endif //BEETROOT_PIPELINE_DEFINES_H

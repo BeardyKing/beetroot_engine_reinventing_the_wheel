@@ -81,7 +81,6 @@ void pipeline_build_font_atlas(const std::string &fontName,
     ASSERT_MSG(sizeRes == FT_Err_Ok, "Err failed to set font size %u", fontSize);
 
     for (uint32_t i = 0; i < glyphCount; ++i) {
-        printf("%c\n", glyphText[i]);
         FT_Error glyphRes = FT_Load_Char(face, glyphText[i], FT_LOAD_RENDER);
         ASSERT_MSG(glyphRes == FT_Err_Ok, "Err failed to load char %u", glyphText[i]);
 

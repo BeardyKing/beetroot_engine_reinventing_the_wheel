@@ -1,0 +1,7 @@
+UV_Grid_test
+    File: UV_Grid_test
+    Font Dir: res/textures/UV_Grid
+    Format: .png
+    Licence: Attribution-ShareAlike
+    Licence Link: https://creativecommons.org/licenses/by-sa/4.0/
+    Author: Kingsley Hopking

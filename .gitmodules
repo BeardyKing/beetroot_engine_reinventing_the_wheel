@@ -16,3 +16,6 @@
 [submodule "beet/math/third/glm"]
 	path = beet/math/third/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "beet_pipeline/third/Cuttlefish"]
+	path = beet_pipeline/third/Cuttlefish
+	url = https://github.com/akb825/Cuttlefish.git
