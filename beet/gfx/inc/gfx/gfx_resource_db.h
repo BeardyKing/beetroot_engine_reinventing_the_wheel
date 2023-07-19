@@ -15,12 +15,18 @@ CameraEntity *gfx_db_get_camera_entity(uint32_t index);
 
 uint32_t gfx_db_add_lit_entity(const LitEntity &litEntity);
 LitEntity *gfx_db_get_lit_entity(uint32_t index);
+uint32_t gfx_db_get_lit_entity_count();
 
 uint32_t gfx_db_add_lit_material(const LitMaterial &litMaterial);
 LitMaterial *gfx_db_get_lit_material(uint32_t index);
 
 uint32_t gfx_db_add_texture(const GfxTexture &gfxTexture);
 GfxTexture *gfx_db_get_texture(uint32_t index);
+uint32_t gfx_db_get_texture_count();
+
+uint32_t gfx_db_add_mesh(const GfxMesh &gfxMesh);
+GfxMesh *gfx_db_get_mesh(uint32_t index);
+uint32_t gfx_db_get_mesh_count();
 
 uint32_t gfx_db_add_descriptor_set(const VkDescriptorSet &descriptorSet);
 VkDescriptorSet *gfx_db_get_descriptor_set(uint32_t index);

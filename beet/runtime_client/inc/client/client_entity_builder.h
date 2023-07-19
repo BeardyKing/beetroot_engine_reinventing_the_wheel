@@ -1,0 +1,6 @@
+#ifndef BEETROOT_CLIENT_ENTITY_BUILDER_H
+#define BEETROOT_CLIENT_ENTITY_BUILDER_H
+
+void client_build_entities();
+
+#endif //BEETROOT_CLIENT_ENTITY_BUILDER_H

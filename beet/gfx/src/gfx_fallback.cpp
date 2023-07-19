@@ -12,16 +12,11 @@
 #include <math/quat.h>
 #include <math/utilities.h>
 
+//===runtime sizes=====
+#define MAX_FALLBACK_DESCRIPTOR_SET_SIZE 64
+
 struct VulkanFallbacks {
     GfxRenderPass renderPass;
-
-    VkBuffer vertexBuffer;
-    VmaAllocation vertexAllocation;
-
-    VkBuffer indexBuffer;
-    VmaAllocation indexAllocation;
-    uint32_t vertexCount;
-    uint32_t indexCount;
 
     VkDescriptorSetLayout descriptorSetLayout;
     VkDescriptorPool descriptorPool;
@@ -66,39 +61,29 @@ void gfx_fallback_record_render_pass(VkCommandBuffer &cmdBuffer) {
 
     vkCmdBeginRenderPass(cmdBuffer, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
     {
-        LitEntity *entity = gfx_db_get_lit_entity(0);
-        LitMaterial *material = gfx_db_get_lit_material(entity->materialIndex);
-        VkDescriptorSet *descriptorSet = gfx_db_get_descriptor_set(material->descriptorSetIndex);
-        Transform *transform = gfx_db_get_transform(entity->transformIndex);
+        const uint32_t litEntityCount = gfx_db_get_lit_entity_count();
+        for (uint32_t i = 0; i < litEntityCount; ++i) {
+            const LitEntity *entity = gfx_db_get_lit_entity(i);
+            const LitMaterial *material = gfx_db_get_lit_material(entity->materialIndex);
+            const VkDescriptorSet *descriptorSet = gfx_db_get_descriptor_set(material->descriptorSetIndex);
+            const Transform *transform = gfx_db_get_transform(entity->transformIndex);
+            const GfxMesh *mesh = gfx_db_get_mesh(entity->meshIndex);
 
-        vkCmdBindPipeline(
-                cmdBuffer,
-                VK_PIPELINE_BIND_POINT_GRAPHICS,
-                g_vulkanFallbacks.pipeline
-        );
 
-        mat4 model = translate(mat4(1.0f), transform->position) * toMat4(quat(transform->rotation)) * scale(mat4(1.0f), transform->scale);
+            vkCmdBindPipeline(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, g_vulkanFallbacks.pipeline);
+            vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, g_vulkanFallbacks.pipelineLayout, 0, 1, descriptorSet, 0, nullptr);
 
-        vkCmdBindDescriptorSets(cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, g_vulkanFallbacks.pipelineLayout, 0, 1,
-                                descriptorSet, 0, nullptr);
+            const mat4 model = translate(mat4(1.0f), transform->position) * toMat4(quat(transform->rotation)) * scale(mat4(1.0f), transform->scale);
+            const UniformBufferObject ubo = {viewProj * model};
+            vkCmdPushConstants(cmdBuffer, g_vulkanFallbacks.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(UniformBufferObject), &ubo);
 
-        UniformBufferObject ubo = {};
-        ubo.mvp = viewProj * model;
+            const VkBuffer vertexBuffers[] = {mesh->vertexBuffer};
+            const VkDeviceSize offsets[] = {0};
+            vkCmdBindVertexBuffers(cmdBuffer, 0, 1, vertexBuffers, offsets);
 
-        vkCmdPushConstants(cmdBuffer,
-                           g_vulkanFallbacks.pipelineLayout,
-                           VK_SHADER_STAGE_VERTEX_BIT,
-                           0,
-                           sizeof(UniformBufferObject),
-                           &ubo
-        );
-
-        VkBuffer vertexBuffers[] = {g_vulkanFallbacks.vertexBuffer};
-        VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(cmdBuffer, 0, 1, vertexBuffers, offsets);
-
-        vkCmdBindIndexBuffer(cmdBuffer, g_vulkanFallbacks.indexBuffer, 0, VK_INDEX_TYPE_UINT16);
-        vkCmdDrawIndexed(cmdBuffer, g_vulkanFallbacks.indexCount, 1, 0, 0, 0);
+            vkCmdBindIndexBuffer(cmdBuffer, mesh->indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+            vkCmdDrawIndexed(cmdBuffer, mesh->indexCount, 1, 0, 0, 0);
+        }
     }
     vkCmdEndRenderPass(cmdBuffer);
 }
@@ -185,8 +170,9 @@ void gfx_create_fallback_descriptors() {
     VkResult descriptorLayoutRes = vkCreateDescriptorSetLayout(g_gfxDevice->vkDevice, &descriptorSetLayoutInfo, nullptr,
                                                                &g_vulkanFallbacks.descriptorSetLayout);
     ASSERT_MSG(descriptorLayoutRes == VK_SUCCESS, "Err: failed to create descriptor set layout");
-    // Create descriptor pool
 
+
+    // Create descriptor pool
     VkDescriptorPoolSize descriptorPoolSizes[2];
     memset(descriptorPoolSizes, 0, sizeof(descriptorPoolSizes));
     descriptorPoolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -197,13 +183,10 @@ void gfx_create_fallback_descriptors() {
     VkDescriptorPoolCreateInfo descriptorPoolInfo = {VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO};
     descriptorPoolInfo.poolSizeCount = (uint32_t) _countof(descriptorPoolSizes);
     descriptorPoolInfo.pPoolSizes = descriptorPoolSizes;
-    descriptorPoolInfo.maxSets = 1;
+    descriptorPoolInfo.maxSets = MAX_FALLBACK_DESCRIPTOR_SET_SIZE;
     VkResult descriptorPoolRes = vkCreateDescriptorPool(g_gfxDevice->vkDevice, &descriptorPoolInfo, nullptr,
                                                         &g_vulkanFallbacks.descriptorPool);
     ASSERT_MSG(descriptorPoolRes == VK_SUCCESS, "Err: failed to create descriptor pool")
-    // Create descriptor set layout
-
-
 }
 
 void gfx_create_fallback_pipeline() {
@@ -214,7 +197,9 @@ void gfx_create_fallback_pipeline() {
         ASSERT_MSG(vertShaderCode != nullptr, "Err: failed to load vert shader");
         ASSERT_MSG(vertShaderCodeSize != 0, "Err: failed to load vert shader");
 
-        VkShaderModuleCreateInfo shaderModuleInfo = {VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO};
+        VkShaderModuleCreateInfo shaderModuleInfo = {
+                VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO
+        };
         shaderModuleInfo.codeSize = vertShaderCodeSize;
         shaderModuleInfo.pCode = (const uint32_t *) vertShaderCode;
         VkShaderModule vertShader = VK_NULL_HANDLE;
@@ -322,7 +307,8 @@ void gfx_create_fallback_pipeline() {
         pipelineRasterizationStateInfo.depthBiasSlopeFactor = 0.0f;
 
         VkPipelineMultisampleStateCreateInfo pipelineMultisampleStateInfo = {
-                VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO};
+                VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO
+        };
         pipelineMultisampleStateInfo.sampleShadingEnable = VK_FALSE;
         pipelineMultisampleStateInfo.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
         pipelineMultisampleStateInfo.minSampleShading = 1.0f;
@@ -345,21 +331,25 @@ void gfx_create_fallback_pipeline() {
         pipelineColorBlendAttachmentState.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
 
         VkPipelineColorBlendStateCreateInfo pipelineColorBlendStateInfo = {
-                VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO};
+                VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO
+        };
         pipelineColorBlendStateInfo.logicOpEnable = VK_FALSE;
         pipelineColorBlendStateInfo.logicOp = VK_LOGIC_OP_COPY;
         pipelineColorBlendStateInfo.attachmentCount = 1;
         pipelineColorBlendStateInfo.pAttachments = &pipelineColorBlendAttachmentState;
 
         VkPipelineDepthStencilStateCreateInfo depthStencilStateInfo = {
-                VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO};
+                VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO
+        };
         depthStencilStateInfo.depthTestEnable = VK_TRUE;
         depthStencilStateInfo.depthWriteEnable = VK_TRUE;
         depthStencilStateInfo.depthCompareOp = VK_COMPARE_OP_LESS;
         depthStencilStateInfo.depthBoundsTestEnable = VK_FALSE;
         depthStencilStateInfo.stencilTestEnable = VK_FALSE;
 
-        VkGraphicsPipelineCreateInfo pipelineInfo = {VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO};
+        VkGraphicsPipelineCreateInfo pipelineInfo = {
+                VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO
+        };
         pipelineInfo.stageCount = 2;
         pipelineInfo.pStages = pipelineShaderStageInfos;
         pipelineInfo.pVertexInputState = &pipelineVertexInputStateInfo;
@@ -376,7 +366,7 @@ void gfx_create_fallback_pipeline() {
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
         pipelineInfo.basePipelineIndex = -1;
 
-        vkCreateGraphicsPipelines(
+        const auto pipelineRes = vkCreateGraphicsPipelines(
                 g_gfxDevice->vkDevice,
                 VK_NULL_HANDLE,
                 1,
@@ -384,6 +374,7 @@ void gfx_create_fallback_pipeline() {
                 nullptr,
                 &g_vulkanFallbacks.pipeline
         );
+        ASSERT_MSG(pipelineRes == VK_SUCCESS, "Err: failed to create fallback graphics pipeline");
 
         vkDestroyShaderModule(g_gfxDevice->vkDevice, fragShader, nullptr);
         vkDestroyShaderModule(g_gfxDevice->vkDevice, vertShader, nullptr);
@@ -443,7 +434,7 @@ void gfx_cleanup_fallback_texture(GfxTexture &gfxTexture) {
     gfxTexture.imageTexture = VK_NULL_HANDLE;
 }
 
-void gfx_create_fallback_mesh() {
+void gfx_create_fallback_mesh(GfxMesh &outMesh) {
     ASSERT_MSG(g_gfxDevice->vmaAllocator, "Err: vma allocator hasn't been created yet");
 
     const uint32_t vertexCount = 24;
@@ -493,7 +484,7 @@ void gfx_create_fallback_mesh() {
 
     size_t vertexBufferSize = sizeof(Vertex) * vertexCount;
     size_t indexBufferSize = sizeof(uint16_t) * indexCount;
-    g_vulkanFallbacks.indexCount = indexCount;
+    outMesh.indexCount = indexCount;
 
     // Create vertex buffer
 
@@ -526,8 +517,8 @@ void gfx_create_fallback_mesh() {
             g_gfxDevice->vmaAllocator,
             &vbInfo,
             &vbAllocCreateInfo,
-            &g_vulkanFallbacks.vertexBuffer,
-            &g_vulkanFallbacks.vertexAllocation,
+            &outMesh.vertexBuffer,
+            &outMesh.vertexAllocation,
             nullptr
     );
     ASSERT_MSG(vertexBufferRes == VK_SUCCESS, "Err: failed to create vertex buffer");
@@ -564,8 +555,8 @@ void gfx_create_fallback_mesh() {
             g_gfxDevice->vmaAllocator,
             &ibInfo,
             &ibAllocCreateInfo,
-            &g_vulkanFallbacks.indexBuffer,
-            &g_vulkanFallbacks.indexAllocation,
+            &outMesh.indexBuffer,
+            &outMesh.indexAllocation,
             nullptr
     );
     ASSERT_MSG(indexBufferRes == VK_SUCCESS, "Err: failed to create index staging buffer");
@@ -581,7 +572,7 @@ void gfx_create_fallback_mesh() {
         vkCmdCopyBuffer(
                 g_gfxDevice->vkImmediateCommandBuffer,
                 stagingVertexBuffer,
-                g_vulkanFallbacks.vertexBuffer,
+                outMesh.vertexBuffer,
                 1,
                 &vbCopyRegion
         );
@@ -593,7 +584,7 @@ void gfx_create_fallback_mesh() {
         vkCmdCopyBuffer(
                 g_gfxDevice->vkImmediateCommandBuffer,
                 stagingIndexBuffer,
-                g_vulkanFallbacks.indexBuffer,
+                outMesh.indexBuffer,
                 1,
                 &ibCopyRegion
         );
@@ -629,8 +620,7 @@ void gfx_create_fallback_texture(GfxTexture &outTexture) {
 
     VmaAllocationCreateInfo stagingBufAllocCreateInfo = {};
     stagingBufAllocCreateInfo.usage = VMA_MEMORY_USAGE_AUTO;
-    stagingBufAllocCreateInfo.flags =
-            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    stagingBufAllocCreateInfo.flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
     VkBuffer stagingBuf = VK_NULL_HANDLE;
     VmaAllocation stagingBufAlloc = VK_NULL_HANDLE;
@@ -793,23 +783,15 @@ void gfx_fallback_update_material_descriptor(VkDescriptorSet &outDescriptorSet, 
     vkUpdateDescriptorSets(g_gfxDevice->vkDevice, 1, &writeDescriptorSet, 0, nullptr);
 }
 
-void gfx_cleanup_fallback_mesh() {
-    vmaDestroyBuffer(g_gfxDevice->vmaAllocator,
-                     g_vulkanFallbacks.indexBuffer,
-                     g_vulkanFallbacks.indexAllocation
-    );
-    g_vulkanFallbacks.indexBuffer = VK_NULL_HANDLE;
+void gfx_cleanup_fallback_mesh(GfxMesh &mesh) {
+    vmaDestroyBuffer(g_gfxDevice->vmaAllocator, mesh.indexBuffer, mesh.indexAllocation);
+    mesh.indexBuffer = VK_NULL_HANDLE;
 
-    vmaDestroyBuffer(g_gfxDevice->vmaAllocator,
-                     g_vulkanFallbacks.vertexBuffer,
-                     g_vulkanFallbacks.vertexAllocation
-    );
-    g_vulkanFallbacks.vertexBuffer = VK_NULL_HANDLE;
+    vmaDestroyBuffer(g_gfxDevice->vmaAllocator, mesh.vertexBuffer, mesh.vertexAllocation);
+    mesh.vertexBuffer = VK_NULL_HANDLE;
 }
 
-
 void gfx_cleanup_fallback_descriptors() {
-
     vkDestroyDescriptorPool(g_gfxDevice->vkDevice, g_vulkanFallbacks.descriptorPool, nullptr);
     g_vulkanFallbacks.descriptorPool = VK_NULL_HANDLE;
 

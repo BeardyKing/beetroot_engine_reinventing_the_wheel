@@ -6,6 +6,15 @@
 #include <math/vec2.h>
 #include <cstdint>
 
+#define MAX_DB_CAMERA_ENTITIES 1
+#define MAX_DB_LIT_ENTITIES 64
+#define MAX_DB_CAMERAS 1
+#define MAX_DB_TRANSFORMS 64
+#define MAX_DB_LIT_MATERIALS 64
+#define MAX_DB_GFX_TEXTURES 64
+#define MAX_DB_GFX_MESHES 64
+#define MAX_DB_VK_DESCRIPTOR_SETS 64
+
 struct LitEntity {
     uint32_t transformIndex;
     uint32_t meshIndex;

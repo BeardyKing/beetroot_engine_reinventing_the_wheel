@@ -8,6 +8,7 @@
 #include <gfx/gfx_resource_db.h>
 
 #include <client/script_editor_camera.h>
+#include <client/client_entity_builder.h>
 
 void client_setup_system_orders() {
     engine_register_system_create(0, window_create);
@@ -27,50 +28,7 @@ void client_setup_system_orders() {
         gfx_create_fallback_descriptors();
         gfx_create_swapchain();
     });
-    engine_register_system_create(5, []() {
-        {
-            //TODO: GFX abstract into gfx mesh for gfx DB
-            gfx_create_fallback_mesh();
-        }
-        {
-            //Add camera entity
-            Camera camera{};
-            Transform transform{};
-            transform.position = vec3f{0.0f, 0.0f, -1.0f};
-
-            CameraEntity cameraEntity{};
-            cameraEntity.transformIndex = gfx_db_add_transform(transform);
-            cameraEntity.cameraIndex = gfx_db_add_camera(camera);
-            gfx_db_add_camera_entity(cameraEntity);
-        }
-        {
-            //Add cube entity
-            GfxTexture fallbackTexture{};
-            gfx_create_fallback_texture(fallbackTexture);
-
-            VkDescriptorSet descriptorSet;
-            gfx_fallback_update_material_descriptor(descriptorSet, fallbackTexture);
-
-            uint32_t fallbackTextureIndex = gfx_db_add_texture(fallbackTexture);
-            uint32_t fallbackDescriptorIndex = gfx_db_add_descriptor_set(descriptorSet);
-
-            LitMaterial material{};
-            material.albedoIndex = fallbackTextureIndex;
-            material.descriptorSetIndex = fallbackDescriptorIndex;
-            uint32_t materialDescriptorIndex = gfx_db_add_lit_material(material);
-
-            Transform transform{};
-            transform.position.z = -5;
-            uint32_t transformIndex = gfx_db_add_transform(transform);
-
-            LitEntity defaultCube{};
-            defaultCube.transformIndex = transformIndex;
-            defaultCube.meshIndex = 99;
-            defaultCube.materialIndex = materialDescriptorIndex;
-            //TODO meshIndex.
-            gfx_db_add_lit_entity(defaultCube);
-        }
-    });
+    engine_register_system_create(5, client_build_entities);
 
     engine_register_system_update(0, time_tick);
     engine_register_system_update(1, []() { input_set_time(time_current()); });
@@ -87,8 +45,14 @@ void client_setup_system_orders() {
     engine_register_system_cleanup(4, []() {
         gfx_cleanup_swapchain();
         gfx_cleanup_fallback_descriptors();
-        gfx_cleanup_fallback_mesh();
-        gfx_cleanup_fallback_texture(*gfx_db_get_texture(0)); // TODO SHOULD DB MANAGE LIFETIME INSTEAD?
+
+        for (int i = 0; i < gfx_db_get_mesh_count(); ++i) {
+            gfx_cleanup_fallback_mesh(*gfx_db_get_mesh(i));
+        }
+        for (int i = 0; i < gfx_db_get_texture_count(); ++i) {
+            gfx_cleanup_fallback_texture(*gfx_db_get_texture(i));
+        }
+
         gfx_cleanup_allocator();
         gfx_cleanup_samplers();
         gfx_cleanup_command_pool();

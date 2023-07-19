@@ -21,14 +21,24 @@ struct Vertex {
     vec2f texCoord;
 };
 
-struct GfxTexture{
+struct GfxMesh {
+    VkBuffer vertexBuffer;
+    VmaAllocation vertexAllocation;
+
+    VkBuffer indexBuffer;
+    VmaAllocation indexAllocation;
+    uint32_t vertexCount;
+    uint32_t indexCount;
+};
+
+struct GfxTexture {
     VkImage imageTexture;
     VmaAllocation imageAllocation;
     VkImageView imageView;
 };
 
-struct GfxRenderPass{
-    VkFramebuffer* vkFramebuffer;
+struct GfxRenderPass {
+    VkFramebuffer *vkFramebuffer;
     uint32_t frameBufferCount;
     VkRenderPass vkRenderPass;
     uint32_t width;
@@ -75,10 +85,7 @@ struct GfxDevice {
     VkCommandBuffer vkImmediateCommandBuffer{};
 
     VkDebugUtilsMessengerEXT vkDebugUtilsMessengerExt = VK_NULL_HANDLE;
-
 };
-
-
 
 
 #endif //BEETROOT_GFX_TYPES_H

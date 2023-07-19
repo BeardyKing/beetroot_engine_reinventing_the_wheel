@@ -3,6 +3,8 @@ add_executable(beet_client
         main.cpp
         inc/client/script_editor_camera.h
         src/script_editor_camera.cpp
+        inc/client/client_entity_builder.h
+        src/client_entity_builder.cpp
         )
 
 ##===LIB TARGET DIR=======//
