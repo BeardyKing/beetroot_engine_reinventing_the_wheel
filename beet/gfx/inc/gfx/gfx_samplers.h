@@ -6,6 +6,7 @@
 struct TextureSamplers {
     VkSampler linearSampler{};
     VkSampler pointSampler{};
+    VkSampler linearMipSampler{};
 };
 
 TextureSamplers* gfx_samplers();

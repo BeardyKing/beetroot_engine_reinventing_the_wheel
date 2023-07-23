@@ -595,24 +595,60 @@ void gfx_create_fallback_mesh(GfxMesh &outMesh) {
     vmaDestroyBuffer(g_gfxDevice->vmaAllocator, stagingVertexBuffer, stagingVertexBufferAlloc);
 }
 
+#include <shared/dds_loader.h>
+
+VkFormat beet_image_format_to_vk(TextureFormat textureFormat) {
+    switch (textureFormat) {
+        case TextureFormat::RGBA8:
+            return VK_FORMAT_R8G8B8A8_UNORM;
+        case TextureFormat::RGBA16:
+            return VK_FORMAT_R16G16B16A16_UNORM;
+
+        case TextureFormat::BC1RGBA:
+            return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+        case TextureFormat::BC2:
+            return VK_FORMAT_BC2_UNORM_BLOCK;
+        case TextureFormat::BC3:
+            return VK_FORMAT_BC3_UNORM_BLOCK;
+        case TextureFormat::BC4:
+            return VK_FORMAT_BC4_UNORM_BLOCK;
+        case TextureFormat::BC5:
+            return VK_FORMAT_BC5_UNORM_BLOCK;
+        case TextureFormat::BC6H:
+            return VK_FORMAT_BC6H_UFLOAT_BLOCK;
+        case TextureFormat::BC7:
+            return VK_FORMAT_BC7_UNORM_BLOCK;
+        default: SANITY_CHECK();
+    };
+    return VK_FORMAT_UNDEFINED;
+}
+
+#define TINYDDSLOADER_IMPLEMENTATION
+#include <shared/tinyddsloader.h>
+
 void gfx_create_fallback_texture(GfxTexture &outTexture) {
     ASSERT_MSG(g_gfxDevice->vmaAllocator, "Err: vma allocator hasn't been created yet");
 
-    const size_t RGBA8_SIZE = sizeof(uint32_t);
-    const uint32_t sizeX = 16;
-    const uint32_t sizeY = 16;
-    const VkDeviceSize imageSize = sizeX * sizeY * RGBA8_SIZE;
+    RawImage myImage{};
+    load_dds_image("C:/dev/beetroot_engine/cmake-build-debug/dist/client/res/textures/hi_16x16.dds", &myImage);
+//    load_dds_image("C:/dev/beetroot_engine/cmake-build-debug/dist/client/res/textures/UV_Grid/UV_Grid_test.dds", &myImage);
 
-    //A8 R8 G8 B8
-    const uint32_t colourBlack = 0xFF000000;
-    const uint32_t colourMagenta = 0xFFFF00FF;
-
-    uint32_t rawImageData[sizeX * sizeY];
-    for (uint32_t i = 0; i < sizeX; ++i) {
-        for (uint32_t j = 0; j < sizeY; ++j) {
-            rawImageData[i * sizeY + j] = (i + j) % 2 ? colourBlack : colourMagenta;
-        }
+    using namespace tinyddsloader;
+    DDSFile dds;
+    auto ret = dds.Load("C:/dev/beetroot_engine/cmake-build-debug/dist/client/res/textures/hi_16x16.dds");
+//    auto ret = dds.Load("C:/dev/beetroot_engine/cmake-build-debug/dist/client/res/textures/UV_Grid/UV_Grid_test.dds");
+    if (tinyddsloader::Result::Success != ret) {
+        SANITY_CHECK();
     }
+    auto image = dds.GetImageData(0);
+//    auto rawImageData = (unsigned char *)image->m_mem;
+    auto rawImageData = (unsigned char *) myImage.data;
+    log_info("mip count: %u\n", myImage.mipMapCount);
+
+    const uint32_t sizeX = myImage.width;
+    const uint32_t sizeY = myImage.height;
+    const uint32 mipMapCount = myImage.mipMapCount;
+    const VkDeviceSize imageSize = myImage.dataSize;
 
     VkBufferCreateInfo stagingBufInfo = {VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
     stagingBufInfo.size = imageSize;
@@ -625,6 +661,8 @@ void gfx_create_fallback_texture(GfxTexture &outTexture) {
     VkBuffer stagingBuf = VK_NULL_HANDLE;
     VmaAllocation stagingBufAlloc = VK_NULL_HANDLE;
     VmaAllocationInfo stagingBufAllocInfo = {};
+
+
 
     VkResult createBufferRes = vmaCreateBuffer(
             g_gfxDevice->vmaAllocator,
@@ -643,9 +681,9 @@ void gfx_create_fallback_texture(GfxTexture &outTexture) {
     imageInfo.extent.width = sizeX;
     imageInfo.extent.height = sizeY;
     imageInfo.extent.depth = 1;
-    imageInfo.mipLevels = 1;
+    imageInfo.mipLevels = mipMapCount;
     imageInfo.arrayLayers = 1;
-    imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+    imageInfo.format = beet_image_format_to_vk(myImage.textureFormat);
     imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
     imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imageInfo.usage = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -665,25 +703,41 @@ void gfx_create_fallback_texture(GfxTexture &outTexture) {
             nullptr
     );
     ASSERT_MSG(imageRes == VK_SUCCESS, "Err: failed to allocate image");
+//    vkBindImageMemory(g_gfxDevice->vkDevice, &outTexture.imageTexture, &outTexture.imageAllocation, 0);
+
 
     gfx_command_begin_immediate_recording();
+
     {
         VkImageMemoryBarrier imgMemBarrier = {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};
-        imgMemBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imgMemBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        imgMemBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        imgMemBarrier.subresourceRange.baseMipLevel = 0;
-        imgMemBarrier.subresourceRange.levelCount = 1;
-        imgMemBarrier.subresourceRange.baseArrayLayer = 0;
-        imgMemBarrier.subresourceRange.layerCount = 1;
-        imgMemBarrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        imgMemBarrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        imgMemBarrier.image = outTexture.imageTexture;
-        imgMemBarrier.srcAccessMask = 0;
-        imgMemBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        imgMemBarrier.
+                srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imgMemBarrier.
+                dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+        imgMemBarrier.subresourceRange.
+                aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        imgMemBarrier.subresourceRange.
+                baseMipLevel = 0;
+        imgMemBarrier.subresourceRange.
+                levelCount = 1;
+        imgMemBarrier.subresourceRange.
+                baseArrayLayer = 0;
+        imgMemBarrier.subresourceRange.
+                layerCount = 1;
+        imgMemBarrier.
+                oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imgMemBarrier.
+                newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        imgMemBarrier.
+                image = outTexture.imageTexture;
+        imgMemBarrier.
+                srcAccessMask = 0;
+        imgMemBarrier.
+                dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 
         vkCmdPipelineBarrier(
-                g_gfxDevice->vkImmediateCommandBuffer,
+                g_gfxDevice
+                        ->vkImmediateCommandBuffer,
                 VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
                 VK_PIPELINE_STAGE_TRANSFER_BIT,
                 0,
@@ -694,14 +748,20 @@ void gfx_create_fallback_texture(GfxTexture &outTexture) {
         );
 
         VkBufferImageCopy region = {};
-        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-        region.imageSubresource.layerCount = 1;
-        region.imageExtent.width = sizeX;
-        region.imageExtent.height = sizeY;
-        region.imageExtent.depth = 1;
+        region.imageSubresource.
+                aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        region.imageSubresource.
+                layerCount = 1;
+        region.imageExtent.
+                width = sizeX;
+        region.imageExtent.
+                height = sizeY;
+        region.imageExtent.
+                depth = 1;
 
         vkCmdCopyBufferToImage(
-                g_gfxDevice->vkImmediateCommandBuffer,
+                g_gfxDevice
+                        ->vkImmediateCommandBuffer,
                 stagingBuf,
                 outTexture.imageTexture,
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -709,14 +769,20 @@ void gfx_create_fallback_texture(GfxTexture &outTexture) {
                 &region
         );
 
-        imgMemBarrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-        imgMemBarrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imgMemBarrier.image = outTexture.imageTexture;
-        imgMemBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-        imgMemBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+        imgMemBarrier.
+                oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        imgMemBarrier.
+                newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        imgMemBarrier.
+                image = outTexture.imageTexture;
+        imgMemBarrier.
+                srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        imgMemBarrier.
+                dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
         vkCmdPipelineBarrier(
-                g_gfxDevice->vkImmediateCommandBuffer,
+                g_gfxDevice
+                        ->vkImmediateCommandBuffer,
                 VK_PIPELINE_STAGE_TRANSFER_BIT,
                 VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
                 0,
@@ -728,19 +794,29 @@ void gfx_create_fallback_texture(GfxTexture &outTexture) {
                 &imgMemBarrier
         );
     }
+
     gfx_command_end_immediate_recording();
 
-    vmaDestroyBuffer(g_gfxDevice->vmaAllocator, stagingBuf, stagingBufAlloc);
+    vmaDestroyBuffer(g_gfxDevice
+                             ->vmaAllocator, stagingBuf, stagingBufAlloc);
 
     VkImageViewCreateInfo textureImageViewInfo = {VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO};
-    textureImageViewInfo.image = outTexture.imageTexture;
-    textureImageViewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    textureImageViewInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
-    textureImageViewInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    textureImageViewInfo.subresourceRange.baseMipLevel = 0;
-    textureImageViewInfo.subresourceRange.levelCount = 1;
-    textureImageViewInfo.subresourceRange.baseArrayLayer = 0;
-    textureImageViewInfo.subresourceRange.layerCount = 1;
+    textureImageViewInfo.
+            image = outTexture.imageTexture;
+    textureImageViewInfo.
+            viewType = VK_IMAGE_VIEW_TYPE_2D;
+    textureImageViewInfo.
+            format = beet_image_format_to_vk(myImage.textureFormat);
+    textureImageViewInfo.subresourceRange.
+            aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    textureImageViewInfo.subresourceRange.
+            baseMipLevel = 0;
+    textureImageViewInfo.subresourceRange.
+            levelCount = 1;
+    textureImageViewInfo.subresourceRange.
+            baseArrayLayer = 0;
+    textureImageViewInfo.subresourceRange.
+            layerCount = 1;
 
     VkResult imageViewRes = vkCreateImageView(
             g_gfxDevice->vkDevice,
@@ -749,6 +825,10 @@ void gfx_create_fallback_texture(GfxTexture &outTexture) {
             &outTexture.imageView
     );
     ASSERT_MSG(imageViewRes == VK_SUCCESS, "Err: failed to create image view");
+    free(myImage
+                 .data);
+    myImage.
+            data = nullptr;
 }
 
 void gfx_fallback_update_material_descriptor(VkDescriptorSet &outDescriptorSet, const GfxTexture &albedoTexture) {
@@ -770,7 +850,7 @@ void gfx_fallback_update_material_descriptor(VkDescriptorSet &outDescriptorSet, 
     VkDescriptorImageInfo descriptorImageInfo = {};
     descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     descriptorImageInfo.imageView = albedoTexture.imageView;
-    descriptorImageInfo.sampler = gfx_samplers()->pointSampler;
+    descriptorImageInfo.sampler = gfx_samplers()->linearMipSampler;
 
     VkWriteDescriptorSet writeDescriptorSet = {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
     writeDescriptorSet.dstSet = outDescriptorSet;

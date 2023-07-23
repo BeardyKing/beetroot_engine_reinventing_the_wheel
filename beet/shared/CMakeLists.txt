@@ -6,7 +6,7 @@ add_library(shared
         src/log.cpp
         src/bit_utils.cpp
         inc/shared/db_types.h
-        )
+        inc/shared/texture_formats.h inc/shared/dds_loader.h src/dds_loader.h.cpp inc/shared/tinyddsloader.h)
 
 ##===LIB TARGET DIR=======//
 target_include_directories(shared

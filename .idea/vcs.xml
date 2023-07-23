@@ -6,7 +6,18 @@
     <mapping directory="$PROJECT_DIR$/beet/gfx/third/freetype" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/beet/gfx/third/freetype/subprojects/dlg" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/beet/gfx/third/harfbuzz" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/beet/math/third/glm" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/beet/shared/third/stb" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/beet_pipeline/third/Cuttlefish" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/beet_pipeline/third/Cuttlefish/lib/FreeImage" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/beet_pipeline/third/Cuttlefish/lib/ISPCTextureCompressor" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/beet_pipeline/third/Cuttlefish/lib/PVRTexToolLib" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/beet_pipeline/third/Cuttlefish/lib/astc-encoder" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/beet_pipeline/third/Cuttlefish/lib/bc7enc_rdo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/beet_pipeline/third/Cuttlefish/lib/compressonator" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/beet_pipeline/third/Cuttlefish/lib/etc2comp" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/beet_pipeline/third/Cuttlefish/lib/glm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/beet_pipeline/third/Cuttlefish/lib/libsquish" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/beet_pipeline/third/fmt" vcs="Git" />
   </component>
 </project>
