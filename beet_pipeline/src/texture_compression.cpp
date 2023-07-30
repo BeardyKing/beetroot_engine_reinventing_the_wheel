@@ -10,7 +10,7 @@
 
 #include <ostream>
 #include <fstream>
-#include <format>
+#include <fmt/format.h>
 
 cuttlefish::Texture::Format beet_to_cuttlefish_texture_format(const TextureFormat &textureFormat);
 
@@ -19,12 +19,12 @@ void pipeline_build_compressed_textures(const std::string &readPath,
                                         const TextureFormat format,
                                         const bool generateMipsMaps = true) {
 
-    const std::string inPath = std::format("{}{}", PIPELINE_TEXTURE_DIR, readPath);
-    const std::string outPath = std::format("{}{}", CLIENT_RUNTIME_TEXTURE_DIR, writePath);
+    const std::string inPath = fmt::format("{}{}", PIPELINE_TEXTURE_DIR, readPath);
+    const std::string outPath = fmt::format("{}{}", CLIENT_RUNTIME_TEXTURE_DIR, writePath);
 
-//    if (!pipeline_cache_should_convert(outPath, inPath)) {
-//        return;
-//    }
+    if (!pipeline_cache_should_convert(outPath, inPath)) {
+        return;
+    }
 
     cuttlefish::Image image;
     image.load(inPath.c_str(), cuttlefish::ColorSpace::Linear);

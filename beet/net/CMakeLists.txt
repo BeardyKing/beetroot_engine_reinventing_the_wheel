@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.15)
+
 ##===LIB SOURCE===========//
 add_library(net
         inc/net/sockets.h

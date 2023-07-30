@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.15)
 
 find_package(Vulkan REQUIRED)
 
@@ -30,8 +30,7 @@ target_include_directories(gfx
 
 ##===LIB THIRD PARTY======//
 ##===LIB VMA==============//
-project(vma)
-add_library(vma INTERFACE)
+add_subdirectory(third/VulkanMemoryAllocator)
 
 ##===LIB FREETYPE=========//
 option(WITH_ZLIB "Freetype: Enable zlib " OFF)
@@ -52,7 +51,7 @@ target_link_libraries(gfx
         shared
         math
         Vulkan::Vulkan
-        vma
+        VulkanMemoryAllocator
         harfbuzz
         freetype
         )

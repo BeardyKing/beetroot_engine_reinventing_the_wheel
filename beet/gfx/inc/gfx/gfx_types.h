@@ -2,7 +2,7 @@
 #define BEETROOT_GFX_TYPES_H
 
 #include <vulkan/vulkan_core.h>
-#include <vma/vk_mem_alloc.h>
+#include <vk_mem_alloc.h>
 
 #include <gfx/vulkan_platform_defines.h>
 

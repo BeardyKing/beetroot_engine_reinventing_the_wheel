@@ -46,7 +46,7 @@ void gfx_fallback_record_render_pass(VkCommandBuffer &cmdBuffer) {
     // Record geometry pass
     const uint32_t clearValueCount = 2;
     VkClearValue clearValues[clearValueCount]{};
-    clearValues[0].color = {{0.5f, 0.092, 0.167f, 1.0f}};
+    clearValues[0].color = {{0.5f, 0.092f, 0.167f, 1.0f}};
     clearValues[1].depthStencil.depth = 1.0f;
 
     VkRenderPassBeginInfo renderPassBeginInfo{};
@@ -386,7 +386,7 @@ void gfx_create_fallback_pipeline() {
 
 void gfx_destroy_fallback() {
     {
-        for (int i = 0; i < g_vulkanFallbacks.renderPass.frameBufferCount; ++i) {
+        for (uint32_t i = 0; i < g_vulkanFallbacks.renderPass.frameBufferCount; ++i) {
             vkDestroyFramebuffer(g_gfxDevice->vkDevice, g_vulkanFallbacks.renderPass.vkFramebuffer[i], nullptr);
         }
         g_vulkanFallbacks.renderPass.frameBufferCount = 0;
@@ -630,13 +630,13 @@ void gfx_create_fallback_texture(GfxTexture &outTexture) {
     ASSERT_MSG(g_gfxDevice->vmaAllocator, "Err: vma allocator hasn't been created yet");
 
     RawImage myImage{};
-    load_dds_image("C:/dev/beetroot_engine/cmake-build-debug/dist/client/res/textures/hi_16x16.dds", &myImage);
-//    load_dds_image("C:/dev/beetroot_engine/cmake-build-debug/dist/client/res/textures/UV_Grid/UV_Grid_test.dds", &myImage);
+    load_dds_image("../res/textures/hi_16x16.dds", &myImage);
+//    load_dds_image("../res/textures/UV_Grid/UV_Grid_test.dds", &myImage);
 
     using namespace tinyddsloader;
     DDSFile dds;
-    auto ret = dds.Load("C:/dev/beetroot_engine/cmake-build-debug/dist/client/res/textures/hi_16x16.dds");
-//    auto ret = dds.Load("C:/dev/beetroot_engine/cmake-build-debug/dist/client/res/textures/UV_Grid/UV_Grid_test.dds");
+    auto ret = dds.Load("../res/textures/hi_16x16.dds");
+//    auto ret = dds.Load("../res/textures/UV_Grid/UV_Grid_test.dds");
     if (tinyddsloader::Result::Success != ret) {
         SANITY_CHECK();
     }

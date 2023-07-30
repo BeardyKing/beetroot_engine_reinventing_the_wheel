@@ -3,10 +3,14 @@
 #include <shared/log.h>
 
 #include <pipeline/pipeline_defines.h>
-#include <shared/assert.h>
+
+#include <pipeline/texture_compression.h>
 
 #include <shared/texture_formats.h>
 #include <shared/dds_loader.h>
+#include <shared/assert.h>
+
+#include <fmt/format.h>
 
 void build_font_atlas_and_description() {
     pipeline_font_atlas_log();
@@ -27,11 +31,6 @@ void build_spv_from_source() {
         pipeline_build_shader_spv("font/font.frag", "font/font.frag.spv");
     }
 }
-
-
-#include <pipeline/texture_compression.h>
-#include <shared/texture_formats.h>
-
 
 void build_compressed_textures() {
     {
@@ -59,10 +58,10 @@ void build_compressed_textures() {
 int main() {
     build_font_atlas_and_description();
     build_spv_from_source();
-//    build_compressed_textures();
+    build_compressed_textures();
 
-//    const std::string inPath = std::format("{}{}", CLIENT_RUNTIME_TEXTURE_DIR, "hi_16x16.dds");
-    const std::string inPath = std::format("{}{}", CLIENT_RUNTIME_TEXTURE_DIR, "UV_Grid/UV_Grid_test.dds");
+    const std::string inPath = fmt::format("{}{}", CLIENT_RUNTIME_TEXTURE_DIR, "hi_16x16.dds");
+//    const std::string inPath = fmt::format("{}{}", CLIENT_RUNTIME_TEXTURE_DIR, "UV_Grid/UV_Grid_test.dds");
     RawImage image{};
     load_dds_image(inPath.c_str(), &image);
     log_info("img %u %u\n", image.width, image.height);

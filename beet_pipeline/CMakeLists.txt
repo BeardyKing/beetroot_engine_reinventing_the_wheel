@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.15)
+
 ##===EXE SOURCE===========//
 add_executable(beet_pipeline
         main.cpp

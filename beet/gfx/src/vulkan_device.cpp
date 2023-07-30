@@ -13,7 +13,7 @@
 
 #define VMA_IMPLEMENTATION
 
-#include <vma/vk_mem_alloc.h>
+#include <vk_mem_alloc.h>
 
 //===internal structs========
 
@@ -262,7 +262,7 @@ VkPresentModeKHR select_present_mode() {
 
     VkPresentModeKHR selectedPresentMode{VK_PRESENT_MODE_FIFO_KHR};
     VkPresentModeKHR preferredMode = g_userArguments->vsync ? VK_PRESENT_MODE_MAILBOX_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
-    for (int i = 0; i < presentModeCount; ++i) {
+    for (uint32_t i = 0; i < presentModeCount; ++i) {
         if (presentModes[i] == preferredMode) {
             selectedPresentMode = presentModes[i];
             break;
@@ -286,7 +286,7 @@ VkSurfaceFormatKHR select_surface_format() {
         VkSurfaceFormatKHR format = {VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR};
         selectedSurfaceFormat = format;
     } else {
-        for (int i = 0; i < surfaceFormatsCount; ++i) {
+        for (uint32_t i = 0; i < surfaceFormatsCount; ++i) {
             if ((surfaceFormats[i].format == VK_FORMAT_B8G8R8A8_UNORM) &&
                 (surfaceFormats[i].colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)) {
                 selectedSurfaceFormat = surfaceFormats[i];
@@ -727,10 +727,14 @@ void gfx_create_queues() {
         enabledDeviceExtensions[deviceExtensionCount] = VK_KHR_SWAPCHAIN_EXTENSION_NAME;
         deviceExtensionCount++;
     }
-    if (BEET_MAX_VK_API_VERSION == VK_API_VERSION_1_3) {
+
+#if BEET_VK_COMPILE_VERSION_1_3
+    const uint32_t runtimeVulkanVersion = g_vulkanProperties->selectedPhysicalDevice.apiVersion;
+    if (runtimeVulkanVersion >= BEET_VK_API_VERSION_1_3) {
         enabledDeviceExtensions[deviceExtensionCount] = VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME;
         deviceExtensionCount++;
     }
+#endif
 
     VkDeviceCreateInfo deviceCreateInfo = {VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO};
     deviceCreateInfo.pNext = &deviceFeatures;

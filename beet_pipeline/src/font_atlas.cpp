@@ -16,6 +16,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include <fmt/format.h>
+
 void pipeline_build_font_atlas(const std::string &fontName,
                                const std::string &fontExt,
                                uint32_t fontSize,
@@ -24,9 +26,9 @@ void pipeline_build_font_atlas(const std::string &fontName,
     const std::string readPath = PIPELINE_FONT_DIR;
     const std::string savePath = CLIENT_RUNTIME_FONT_DIR;
 
-    std::string fontSrc = std::format("{}{}{}", readPath, fontName, fontExt);
-    std::string fontAtlasOutName = std::format("{}{}{}", savePath, fontName, ".png");
-    std::string fontAtlasDescOutName = std::format("{}{}{}", savePath, fontName, ".desc");
+    std::string fontSrc = fmt::format("{}{}{}", readPath, fontName, fontExt);
+    std::string fontAtlasOutName = fmt::format("{}{}{}", savePath, fontName, ".png");
+    std::string fontAtlasDescOutName = fmt::format("{}{}{}", savePath, fontName, ".desc");
 
     if (!pipeline_cache_should_convert(fontAtlasOutName, fontSrc) &&
         !pipeline_cache_should_convert(fontAtlasDescOutName, fontSrc)) {
@@ -90,8 +92,8 @@ void pipeline_build_font_atlas(const std::string &fontName,
             pen_y += ((face->size->metrics.height >> dotSize) + 1);
         }
 
-        for (int row = 0; row < bmp->rows; ++row) {
-            for (int col = 0; col < bmp->width; ++col) {
+        for (uint32_t row = 0; row < bmp->rows; ++row) {
+            for (uint32_t col = 0; col < bmp->width; ++col) {
                 int x = pen_x + col;
                 int y = pen_y + row;
                 const uint32_t pixelIndex = y * maxTexWidth + x;
@@ -118,7 +120,7 @@ void pipeline_build_font_atlas(const std::string &fontName,
         char *png_data = new char[maxTexWidth * maxTexHeight * 4];
         memset(png_data, 0, sizeof(char) * (maxTexWidth * maxTexHeight * 4));
 
-        for (int i = 0; i < (maxTexWidth * maxTexHeight); ++i) {
+        for (uint32_t i = 0; i < (maxTexWidth * maxTexHeight); ++i) {
             png_data[i * 4 + 0] |= pixels[i];
             png_data[i * 4 + 1] |= pixels[i];
             png_data[i * 4 + 2] |= pixels[i];

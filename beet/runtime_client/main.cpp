@@ -46,10 +46,10 @@ void client_setup_system_orders() {
         gfx_cleanup_swapchain();
         gfx_cleanup_fallback_descriptors();
 
-        for (int i = 0; i < gfx_db_get_mesh_count(); ++i) {
+        for (uint32_t i = 0; i < gfx_db_get_mesh_count(); ++i) {
             gfx_cleanup_fallback_mesh(*gfx_db_get_mesh(i));
         }
-        for (int i = 0; i < gfx_db_get_texture_count(); ++i) {
+        for (uint32_t i = 0; i < gfx_db_get_texture_count(); ++i) {
             gfx_cleanup_fallback_texture(*gfx_db_get_texture(i));
         }
 
