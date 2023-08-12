@@ -19,7 +19,7 @@ void build_lit_entities() {
     uint32_t defaultMaterial{};
     {
         GfxTexture fallbackTexture{};
-        gfx_create_fallback_texture(fallbackTexture);
+        gfx_create_texture_immediate("../res/textures/UV_Grid/UV_Grid_test.dds", fallbackTexture);
 
         VkDescriptorSet descriptorSet;
         gfx_fallback_update_material_descriptor(descriptorSet, fallbackTexture);

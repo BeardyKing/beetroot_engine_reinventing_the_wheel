@@ -22,7 +22,8 @@ enum class MouseButton {
 
 enum class KeyCode {
     Unknown = -1,
-    Shift = 16, // both left and right
+    Shift = 16,     // both left and right
+    Control = 17,   // both left and right
     Space = 32,
     Apostrophe = 39,
     Comma = 44,

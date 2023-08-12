@@ -1,14 +1,9 @@
 #include <pipeline/font_atlas.h>
 #include <pipeline/shader_compile.h>
-#include <shared/log.h>
-
-#include <pipeline/pipeline_defines.h>
-
 #include <pipeline/texture_compression.h>
 
+#include <shared/log.h>
 #include <shared/texture_formats.h>
-#include <shared/dds_loader.h>
-#include <shared/assert.h>
 
 #include <fmt/format.h>
 
@@ -33,51 +28,14 @@ void build_spv_from_source() {
 }
 
 void build_compressed_textures() {
-    {
-        pipeline_build_compressed_textures("UV_Grid/UV_Grid_test.png", "UV_Grid/UV_Grid_test.dds", TextureFormat::BC7, false);
-        pipeline_build_compressed_textures("sky/herkulessaulen_1k.hdr", "sky/herkulessaulen_1k.dds", TextureFormat::BC6H, false);
-        pipeline_build_compressed_textures("hi_16x16.png", "hi_16x16.dds", TextureFormat::RGBA8, true);
-    }
+    pipeline_build_compressed_textures("UV_Grid/UV_Grid_test.png", "UV_Grid/UV_Grid_test.dds", TextureFormat::BC7, false);
+    pipeline_build_compressed_textures("sky/herkulessaulen_1k.hdr", "sky/herkulessaulen_1k.dds", TextureFormat::BC6H, false);
+    pipeline_build_compressed_textures("hi_16x16.png", "hi_16x16.dds", TextureFormat::RGBA8, true);
+    pipeline_build_compressed_textures("oct_map/oct_map_test.png", "oct_map/oct_map_test.dds", TextureFormat::BC7, true);
 }
-
-#include <cuttlefish/Image.h>
-#include <cuttlefish/Texture.h>
-
-#include <pipeline/pipeline_defines.h>
-#include <pipeline/pipeline_cache.h>
-
-#include <shared/assert.h>
-
-#include <ostream>
-#include <fstream>
-#include <format>
-
-#define TINYDDSLOADER_IMPLEMENTATION
-#include <shared/tinyddsloader.h>
 
 int main() {
     build_font_atlas_and_description();
     build_spv_from_source();
     build_compressed_textures();
-
-    const std::string inPath = fmt::format("{}{}", CLIENT_RUNTIME_TEXTURE_DIR, "hi_16x16.dds");
-//    const std::string inPath = fmt::format("{}{}", CLIENT_RUNTIME_TEXTURE_DIR, "UV_Grid/UV_Grid_test.dds");
-    RawImage image{};
-    load_dds_image(inPath.c_str(), &image);
-    log_info("img %u %u\n", image.width, image.height);
-
-    using namespace tinyddsloader;
-    DDSFile dds;
-    auto ret = dds.Load(inPath.c_str());
-    if (tinyddsloader::Result::Success != ret) {
-        std::cout << "Failed to load.[" << inPath << "]\n";
-        std::cout << "Result : " << int(ret) << "\n";
-        return 1;
-    }
-    auto imageData = dds.GetImageData(0);
-    auto rawImageData = (unsigned char *)imageData->m_mem;
-    int32_t valid = memcmp(image.data, rawImageData, image.dataSize);
-    log_info("hello image %i\n", valid);
-    log_info("\n");
 }
-

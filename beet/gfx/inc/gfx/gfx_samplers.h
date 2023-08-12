@@ -3,10 +3,15 @@
 
 #include <vulkan/vulkan_core.h>
 
+enum TextureSamplerType{
+    Linear = 0,
+    Point = 1,
+
+    COUNT,
+};
+
 struct TextureSamplers {
-    VkSampler linearSampler{};
-    VkSampler pointSampler{};
-    VkSampler linearMipSampler{};
+    VkSampler samplers[TextureSamplerType::COUNT];
 };
 
 TextureSamplers* gfx_samplers();

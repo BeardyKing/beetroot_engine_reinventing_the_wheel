@@ -8,7 +8,10 @@ add_library(shared
         src/log.cpp
         src/bit_utils.cpp
         inc/shared/db_types.h
-        inc/shared/texture_formats.h inc/shared/dds_loader.h src/dds_loader.h.cpp inc/shared/tinyddsloader.h)
+        inc/shared/texture_formats.h
+        inc/shared/dds_loader.h
+        src/dds_loader.h.cpp
+)
 
 ##===LIB TARGET DIR=======//
 target_include_directories(shared
@@ -16,18 +19,18 @@ target_include_directories(shared
         PRIVATE inc/shared
 
         PUBLIC third/stb/
-        )
+)
 
 ##===LIB THIRD PARTY======//
 ##===LIB STB==============//
 include_directories(shared
         third/stb/
-        )
+)
 
 ##===LIB DEPENDENCIES=====//
 target_link_libraries(shared
         math
-        )
+)
 
 set_target_properties(shared PROPERTIES CXX_STANDARD 11 CXX_STANDARD_REQUIRED YES CXX_EXTENSIONS NO)
 

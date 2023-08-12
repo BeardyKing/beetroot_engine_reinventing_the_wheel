@@ -11,10 +11,10 @@ void pipeline_build_shader_spv(const std::string &readPath, const std::string &w
     const std::string outPath = fmt::format("{}{}", CLIENT_RUNTIME_SHADER_DIR, writePath);
     const std::string cmd = fmt::format("{} {} {} {}", GLSL_VALIDATOR_EXE_PATH, "-V -o", outPath, inPath);
 
-//    if (pipeline_cache_should_convert(outPath, inPath)) {
+    if (pipeline_cache_should_convert(outPath, inPath)) {
         log_info("shader: %s \n", outPath.c_str());
         system(cmd.c_str());
-//    }
+    }
 }
 
 void pipeline_shader_log() {

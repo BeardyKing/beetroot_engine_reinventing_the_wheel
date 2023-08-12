@@ -36,6 +36,7 @@ void pipeline_build_compressed_textures(const std::string &readPath,
     uint32_t mipCount = 1;
     if (generateMipsMaps) {
         mipCount = cuttlefish::Texture::maxMipmapLevels(cuttlefish::Texture::Dimension::Dim2D, image.width(), image.height());
+        mipCount = mipCount > BEET_MAX_MIP_COUNT ? BEET_MAX_MIP_COUNT : mipCount;
     }
 
     cuttlefish::Texture texture(cuttlefish::Texture::Dimension::Dim2D, image.width(), image.height(), 0, mipCount);
@@ -63,10 +64,7 @@ void pipeline_build_compressed_textures(const std::string &readPath,
     const uint32_t blockY = (texture.height() + cuttlefish::Texture::blockHeight(targetFormat) - 1) / cuttlefish::Texture::blockHeight(targetFormat);
     ASSERT_MSG(blockX * blockY * cuttlefish::Texture::blockSize(targetFormat) == texture.dataSize(), "Err: block compression size didn't match");
 
-
-
-    const bool formatValidation = cuttlefish::Texture::isFormatValid(targetFormat, pixelType,
-                                                                     cuttlefish::Texture::FileType::DDS);
+    const bool formatValidation = cuttlefish::Texture::isFormatValid(targetFormat, pixelType, cuttlefish::Texture::FileType::DDS);
     ASSERT_MSG(formatValidation, "Err: Invalid format");
 
     std::ofstream ofs(outPath, std::ios::out | std::ios::binary);
@@ -80,7 +78,6 @@ cuttlefish::Texture::Format beet_to_cuttlefish_texture_format(const TextureForma
             return cuttlefish::Texture::Format::R8G8B8A8;
         case TextureFormat::RGBA16:
             return cuttlefish::Texture::Format::R16G16B16A16;
-
         case TextureFormat::BC1RGBA:
             return cuttlefish::Texture::Format::BC1_RGBA;
         case TextureFormat::BC2:

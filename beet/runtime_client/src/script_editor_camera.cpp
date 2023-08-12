@@ -31,8 +31,9 @@ void script_update_editor_camera() {
         const vec3f camForward = quat(transform->rotation) * WORLD_FORWARD;
         const vec3f camRight = quat(transform->rotation) * WORLD_RIGHT;
 
-        float moveSpeed = 8.0f;
-        const float moveSpeedScalar = 4.0f;
+        float moveSpeed = 5.0f;
+        const float speedUpScalar = 4.0f;
+        const float speedDownScalar = 0.1f;
         if (input_key_down(KeyCode::W)) {
             moveDirection += camForward;
         }
@@ -52,7 +53,10 @@ void script_update_editor_camera() {
             moveDirection += -WORLD_UP;
         }
         if (input_key_down(KeyCode::Shift)) {
-            moveSpeed *= moveSpeedScalar;
+            moveSpeed *= speedUpScalar;
+        }
+        if (input_key_down(KeyCode::Control)) {
+            moveSpeed *= speedDownScalar;
         }
         transform->position += moveDirection * ((float) time_delta() * moveSpeed);
     }

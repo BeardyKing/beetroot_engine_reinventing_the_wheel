@@ -12,7 +12,7 @@ void gfx_create_fallback_pipeline();
 void gfx_create_fallback_renderpass(const VkFormat &selectedSurfaceFormat, const VkFormat &selectedDepthFormat);
 void gfx_create_fallback_framebuffer();
 
-void gfx_create_fallback_texture(GfxTexture& outTexture);
+void gfx_create_texture_immediate(const char* path, GfxTexture& outTexture);
 void gfx_cleanup_fallback_texture(GfxTexture& gfxTexture);
 
 void gfx_create_fallback_mesh(GfxMesh& outMesh);

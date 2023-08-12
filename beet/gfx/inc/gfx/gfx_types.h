@@ -10,7 +10,6 @@
 #include <math/vec3.h>
 #include <math/vec2.h>
 
-
 struct UniformBufferObject {
     mat4 mvp;
 };
@@ -35,6 +34,8 @@ struct GfxTexture {
     VkImage imageTexture;
     VmaAllocation imageAllocation;
     VkImageView imageView;
+    VkImageLayout imageLayout;
+    uint32_t imageSamplerType;
 };
 
 struct GfxRenderPass {
@@ -86,6 +87,5 @@ struct GfxDevice {
 
     VkDebugUtilsMessengerEXT vkDebugUtilsMessengerExt = VK_NULL_HANDLE;
 };
-
 
 #endif //BEETROOT_GFX_TYPES_H

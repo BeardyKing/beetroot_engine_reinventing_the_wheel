@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#define BEET_MAX_MIP_COUNT 16
+
 //supported engine formats
 enum class TextureFormat : uint32_t {
     RGBA8,
@@ -26,6 +28,7 @@ struct RawImage {
     uint32_t depth;
 
     uint32_t dataSize;
+    uint32_t mipDataSizes[BEET_MAX_MIP_COUNT];
     void* data;
 };
 

@@ -11,7 +11,9 @@ add_executable(beet_pipeline
         src/shader_compile.cpp
         inc/pipeline/pipeline_cache.h
         src/pipeline_cache.cpp
-        inc/pipeline/texture_compression.h src/texture_compression.cpp inc/pipeline/tinyddsloader.h)
+        inc/pipeline/texture_compression.h
+        src/texture_compression.cpp
+)
 
 ##===LIB TARGET DIR=======//
 target_include_directories(beet_pipeline
