@@ -1,7 +1,8 @@
 //===defines=================
 #include <gfx/gfx_interface.h>
 #include <gfx/gfx_types.h>
-#include <gfx/gfx_fallback.h>
+#include <gfx/gfx_lit.h>
+#include <gfx/gfx_font.h>
 #include <gfx/vulkan_platform_defines.h>
 #include <gfx/gfx_samplers.h>
 
@@ -165,7 +166,8 @@ void destroy_swapchain() {
         g_gfxDevice->vkSemaphoreRenderFinished = VK_NULL_HANDLE;
     }
     {
-        gfx_destroy_fallback();
+        gfx_destroy_lit();
+        gfx_destroy_font();
     }
     {
         vkDestroyImageView(g_gfxDevice->vkDevice, g_gfxDevice->depthImageView, nullptr);
@@ -878,9 +880,6 @@ void gfx_cleanup_allocator() {
     vmaDestroyAllocator(g_gfxDevice->vmaAllocator);
 }
 
-
-bool exists = false;
-
 void gfx_create_swapchain() {
     VkSurfaceFormatKHR selectedSurfaceFormat = select_surface_format();
     VkPresentModeKHR selectedPresentMode = select_present_mode();
@@ -891,10 +890,15 @@ void gfx_create_swapchain() {
     VkFormat selectedDepthFormat = find_depth_format(VK_IMAGE_TILING_OPTIMAL);
     create_depth_buffer(selectedDepthFormat);
 
-    gfx_create_fallback_pipeline_layout();
-    gfx_create_fallback_renderpass(selectedSurfaceFormat.format, selectedDepthFormat);
-    gfx_create_fallback_framebuffer();
-    gfx_create_fallback_pipeline();
+    gfx_create_lit_pipeline_layout();
+    gfx_create_lit_renderpass(selectedSurfaceFormat.format, selectedDepthFormat);
+    gfx_create_lit_framebuffer();
+    gfx_create_lit_pipeline();
+
+    gfx_create_font_pipeline_layout();
+    gfx_create_font_renderpass(selectedSurfaceFormat.format, selectedDepthFormat);
+    gfx_create_font_framebuffer();
+    gfx_create_font_pipeline();
 
     create_semaphores();
 }
@@ -995,7 +999,8 @@ void gfx_update(const double &deltaTime) {
 
     begin_command_recording(cmdBuffer);
     {
-        gfx_fallback_record_render_pass(cmdBuffer);
+        gfx_lit_record_render_pass(cmdBuffer);
+        gfx_font_record_render_pass(cmdBuffer);
     }
     end_command_recording(cmdBuffer);
 

@@ -17,8 +17,15 @@ uint32_t gfx_db_add_lit_entity(const LitEntity &litEntity);
 LitEntity *gfx_db_get_lit_entity(uint32_t index);
 uint32_t gfx_db_get_lit_entity_count();
 
+uint32_t gfx_db_get_font_entity_count();
+uint32_t gfx_db_add_font_entity(const FontEntity &fontEntity);
+FontEntity *gfx_db_get_font_entity(uint32_t index);
+
 uint32_t gfx_db_add_lit_material(const LitMaterial &litMaterial);
 LitMaterial *gfx_db_get_lit_material(uint32_t index);
+
+uint32_t gfx_db_add_font_material(const FontMaterial &fontMaterial);
+FontMaterial *gfx_db_get_font_material(uint32_t index);
 
 uint32_t gfx_db_add_texture(const GfxTexture &gfxTexture);
 GfxTexture *gfx_db_get_texture(uint32_t index);
@@ -33,5 +40,8 @@ VkDescriptorSet *gfx_db_get_descriptor_set(uint32_t index);
 
 uint32_t gfx_db_add_transform(const Transform &litMaterial);
 Transform *gfx_db_get_transform(uint32_t index);
+
+uint32_t gfx_db_add_ui_transform(const UiTransform &uiTransform);
+UiTransform *gfx_db_get_ui_transform(uint32_t index);
 
 #endif //BEETROOT_GFX_RESOURCE_DB_H

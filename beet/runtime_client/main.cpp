@@ -4,8 +4,11 @@
 #include <core/input.h>
 
 #include <gfx/gfx_interface.h>
-#include <gfx/gfx_fallback.h>
+#include <gfx/gfx_lit.h>
+#include <gfx/gfx_font.h>
 #include <gfx/gfx_resource_db.h>
+#include <gfx/gfx_texture.h>
+#include <gfx/gfx_mesh.h>
 
 #include <client/script_editor_camera.h>
 #include <client/client_entity_builder.h>
@@ -25,7 +28,8 @@ void client_setup_system_orders() {
         gfx_create_command_pool();
         gfx_create_samplers();
         gfx_create_allocator();
-        gfx_create_fallback_descriptors();
+        gfx_create_lit_descriptors();
+        gfx_create_font_descriptors();
         gfx_create_swapchain();
     });
     engine_register_system_create(5, client_build_entities);
@@ -44,13 +48,14 @@ void client_setup_system_orders() {
     engine_register_system_cleanup(3, gfx_db_cleanup);
     engine_register_system_cleanup(4, []() {
         gfx_cleanup_swapchain();
-        gfx_cleanup_fallback_descriptors();
+        gfx_cleanup_font_descriptors();
+        gfx_cleanup_lit_descriptors();
 
         for (uint32_t i = 0; i < gfx_db_get_mesh_count(); ++i) {
-            gfx_cleanup_fallback_mesh(*gfx_db_get_mesh(i));
+            gfx_cleanup_mesh(*gfx_db_get_mesh(i));
         }
         for (uint32_t i = 0; i < gfx_db_get_texture_count(); ++i) {
-            gfx_cleanup_fallback_texture(*gfx_db_get_texture(i));
+            gfx_cleanup_texture(*gfx_db_get_texture(i));
         }
 
         gfx_cleanup_allocator();

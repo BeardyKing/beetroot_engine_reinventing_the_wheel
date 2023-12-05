@@ -6,7 +6,7 @@
 #include <cstdint>
 
 struct GlyphInfo {
-    int32_t glyph;              // character range value/index
+    uint32_t glyph;             // character range value/index
     int32_t x0, y0, x1, y1;     // coords of glyph in the texture atlas
     int32_t x_off, y_off;       // left & top bearing when rendering
     int32_t advance;            // x advance when rendering

@@ -10,14 +10,17 @@ static uint32_t s_dbCameraEntitiesCount{0};
 static LitEntity s_dbLitEntities[MAX_DB_LIT_ENTITIES];
 static uint32_t s_dbLitEntitiesCount{0};
 
+static FontEntity s_dbFontEntities[MAX_DB_FONT_ENTITIES];
+static uint32_t s_dbFontEntitiesCount{0};
+
 static Camera s_dbCameras[MAX_DB_CAMERAS];
 static uint32_t s_dbCameraCount{0};
 
 static Transform s_dbTransforms[MAX_DB_TRANSFORMS];
 static uint32_t s_dbTransformsCount{0};
 
-static LitMaterial s_dbLitMaterials[MAX_DB_LIT_MATERIALS];
-static uint32_t s_dbLitMaterialsCount{0};
+static UiTransform s_dbUiTransforms[MAX_DB_UI_TRANSFORMS];
+static uint32_t s_dbUiTransformsCount{0};
 
 static GfxTexture s_dbTextures[MAX_DB_GFX_TEXTURES];
 static uint32_t s_dbTexturesCount{0};
@@ -28,16 +31,27 @@ static uint32_t s_dbMeshesCount{0};
 static VkDescriptorSet s_dbDescriptorSet[MAX_DB_VK_DESCRIPTOR_SETS];
 static uint32_t s_dbDescriptorSetCount{0};
 
+static LitMaterial s_dbLitMaterials[MAX_DB_LIT_MATERIALS];
+static uint32_t s_dbLitMaterialsCount{0};
+
+static FontMaterial s_dbFontMaterials[MAX_DB_FONT_MATERIALS];
+static uint32_t s_dbFontMaterialsCount{0};
+
 void gfx_db_create() {
     memset(s_dbCameraEntities, 0, sizeof(CameraEntity) * MAX_DB_CAMERA_ENTITIES);
     memset(s_dbLitEntities, 0, sizeof(LitEntity) * MAX_DB_LIT_ENTITIES);
+    memset(s_dbFontEntities, 0, sizeof(FontEntity) * MAX_DB_FONT_ENTITIES);
 
     memset(s_dbCameras, 0, sizeof(Camera) * MAX_DB_CAMERAS);
     memset(s_dbTransforms, 0, sizeof(Transform) * MAX_DB_TRANSFORMS);
-    memset(s_dbLitMaterials, 0, sizeof(LitMaterial) * MAX_DB_LIT_MATERIALS);
+    memset(s_dbUiTransforms, 0, sizeof(UiTransform) * MAX_DB_UI_TRANSFORMS);
     memset(s_dbTextures, 0, sizeof(GfxTexture) * MAX_DB_GFX_TEXTURES);
     memset(s_dbMeshes, 0, sizeof(GfxMesh) * MAX_DB_GFX_MESHES);
+
     memset(s_dbDescriptorSet, 0, sizeof(VkDescriptorSet) * MAX_DB_VK_DESCRIPTOR_SETS);
+
+    memset(s_dbLitMaterials, 0, sizeof(LitMaterial) * MAX_DB_LIT_MATERIALS);
+    memset(s_dbFontMaterials, 0, sizeof(FontMaterial) * MAX_DB_FONT_MATERIALS);
 }
 
 void gfx_db_cleanup() {}
@@ -85,6 +99,24 @@ uint32_t gfx_db_add_lit_entity(const LitEntity &litEntity) {
 LitEntity *gfx_db_get_lit_entity(uint32_t index) {
     ASSERT_MSG(index < MAX_DB_LIT_ENTITIES, "Err: invalid db index %u, max index [%u]", index, MAX_DB_LIT_ENTITIES);
     return &s_dbLitEntities[index];
+}
+
+uint32_t gfx_db_get_font_entity_count() {
+    return s_dbFontEntitiesCount;
+}
+
+uint32_t gfx_db_add_font_entity(const FontEntity &fontEntity) {
+    ASSERT_MSG(s_dbFontEntitiesCount < MAX_DB_FONT_ENTITIES, "Err: exceeded pre-allocated amount of font entities %u, max amount [%u]",
+               s_dbFontEntitiesCount, MAX_DB_FONT_ENTITIES);
+    uint32_t currentFontEntityIndex = s_dbFontEntitiesCount;
+    s_dbFontEntities[currentFontEntityIndex] = fontEntity;
+    s_dbFontEntitiesCount++;
+    return currentFontEntityIndex;
+}
+
+FontEntity *gfx_db_get_font_entity(uint32_t index) {
+    ASSERT_MSG(index < MAX_DB_FONT_ENTITIES, "Err: invalid db index %u, max index [%u]", index, MAX_DB_FONT_ENTITIES);
+    return &s_dbFontEntities[index];
 }
 
 uint32_t gfx_db_get_texture_count() {
@@ -151,16 +183,44 @@ LitMaterial *gfx_db_get_lit_material(uint32_t index) {
     return &s_dbLitMaterials[index];
 }
 
-uint32_t gfx_db_add_transform(const Transform &litMaterial) {
-    ASSERT_MSG(s_dbTransformsCount < MAX_DB_TRANSFORMS, "Err: exceeded pre-allocated amount of lit materials sets %u, max amount [%u]",
+uint32_t gfx_db_add_font_material(const FontMaterial &fontMaterial) {
+    ASSERT_MSG(s_dbFontMaterialsCount < MAX_DB_FONT_MATERIALS, "Err: exceeded pre-allocated amount of font materials sets %u, max amount [%u]",
+               s_dbFontMaterialsCount, MAX_DB_FONT_MATERIALS);
+    uint32_t currentFontMaterialsIndex = s_dbFontMaterialsCount;
+    s_dbFontMaterials[currentFontMaterialsIndex] = fontMaterial;
+    s_dbFontMaterialsCount++;
+    return currentFontMaterialsIndex;
+}
+
+FontMaterial *gfx_db_get_font_material(uint32_t index) {
+    ASSERT_MSG(index < MAX_DB_FONT_MATERIALS, "Err: invalid db index %u, max index [%u]", index, MAX_DB_FONT_MATERIALS);
+    return &s_dbFontMaterials[index];
+}
+
+uint32_t gfx_db_add_transform(const Transform &transform) {
+    ASSERT_MSG(s_dbTransformsCount < MAX_DB_TRANSFORMS, "Err: exceeded pre-allocated amount of transforms %u, max amount [%u]",
                s_dbTransformsCount, MAX_DB_TRANSFORMS);
-    uint32_t currentLitMaterialsIndex = s_dbTransformsCount;
-    s_dbTransforms[currentLitMaterialsIndex] = litMaterial;
+    uint32_t currentTransformIndex = s_dbTransformsCount;
+    s_dbTransforms[currentTransformIndex] = transform;
     s_dbTransformsCount++;
-    return currentLitMaterialsIndex;
+    return currentTransformIndex;
 }
 
 Transform *gfx_db_get_transform(uint32_t index) {
     ASSERT_MSG(index < MAX_DB_TRANSFORMS, "Err: invalid db index %u, max index [%u]", index, MAX_DB_TRANSFORMS);
     return &s_dbTransforms[index];
+}
+
+uint32_t gfx_db_add_ui_transform(const UiTransform &uiTransform) {
+    ASSERT_MSG(s_dbUiTransformsCount < MAX_DB_UI_TRANSFORMS, "Err: exceeded pre-allocated amount of ui transforms %u, max amount [%u]",
+               s_dbUiTransformsCount, MAX_DB_UI_TRANSFORMS);
+    uint32_t currentUiTransformIndex = s_dbUiTransformsCount;
+    s_dbUiTransforms[currentUiTransformIndex] = uiTransform;
+    s_dbUiTransformsCount++;
+    return currentUiTransformIndex;
+}
+
+UiTransform *gfx_db_get_ui_transform(uint32_t index) {
+    ASSERT_MSG(index < MAX_DB_UI_TRANSFORMS, "Err: invalid db index %u, max index [%u]", index, MAX_DB_UI_TRANSFORMS);
+    return &s_dbUiTransforms[index];
 }

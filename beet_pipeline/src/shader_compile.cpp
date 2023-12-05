@@ -7,8 +7,8 @@
 #include <fmt/format.h>
 
 void pipeline_build_shader_spv(const std::string &readPath, const std::string &writePath) {
-    const std::string inPath = fmt::format("{}{}", PIPELINE_SHADER_DIR, readPath);
-    const std::string outPath = fmt::format("{}{}", CLIENT_RUNTIME_SHADER_DIR, writePath);
+    const std::string inPath = fmt::format("{}{}", PIPELINE_RES_DIR, readPath);
+    const std::string outPath = fmt::format("{}{}", CLIENT_RUNTIME_RES_DIR, writePath);
     const std::string cmd = fmt::format("{} {} {} {}", GLSL_VALIDATOR_EXE_PATH, "-V -o", outPath, inPath);
 
     if (pipeline_cache_should_convert(outPath, inPath)) {

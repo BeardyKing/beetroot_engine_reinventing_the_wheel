@@ -10,6 +10,12 @@
 #include <math/vec3.h>
 #include <math/vec2.h>
 
+struct FontUniformBufferObject {
+    mat4 mvp;
+    vec2f uvOffset;
+    vec2f uvScale;
+};
+
 struct UniformBufferObject {
     mat4 mvp;
 };

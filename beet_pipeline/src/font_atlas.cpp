@@ -23,8 +23,8 @@ void pipeline_build_font_atlas(const std::string &fontName,
                                uint32_t fontSize,
                                uint32_t atlasSize) {
 
-    const std::string readPath = PIPELINE_FONT_DIR;
-    const std::string savePath = CLIENT_RUNTIME_FONT_DIR;
+    const std::string readPath = PIPELINE_RES_DIR;
+    const std::string savePath = CLIENT_RUNTIME_RES_DIR;
 
     std::string fontSrc = fmt::format("{}{}{}", readPath, fontName, fontExt);
     std::string fontAtlasOutName = fmt::format("{}{}{}", savePath, fontName, ".png");
@@ -104,6 +104,7 @@ void pipeline_build_font_atlas(const std::string &fontName,
         }
         {
             //font .desc info
+            glyphInfo[i].glyph = glyphText[i];
             glyphInfo[i].x0 = pen_x;
             glyphInfo[i].y0 = pen_y;
             glyphInfo[i].x1 = int32_t(pen_x + bmp->width);
@@ -124,7 +125,7 @@ void pipeline_build_font_atlas(const std::string &fontName,
             png_data[i * 4 + 0] |= pixels[i];
             png_data[i * 4 + 1] |= pixels[i];
             png_data[i * 4 + 2] |= pixels[i];
-            png_data[i * 4 + 3] = 0xff;
+            png_data[i * 4 + 3] = pixels[i];
         }
         stbi_write_png(fontAtlasOutName.c_str(), int32_t(maxTexWidth), int32_t(maxTexHeight), 4, png_data, int32_t(maxTexWidth) * 4);
         delete[] png_data;

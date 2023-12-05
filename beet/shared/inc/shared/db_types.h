@@ -8,15 +8,27 @@
 
 #define MAX_DB_CAMERA_ENTITIES 1
 #define MAX_DB_LIT_ENTITIES 64
+#define MAX_DB_FONT_ENTITIES 64
+
 #define MAX_DB_CAMERAS 1
 #define MAX_DB_TRANSFORMS 64
-#define MAX_DB_LIT_MATERIALS 64
+#define MAX_DB_UI_TRANSFORMS 64
 #define MAX_DB_GFX_TEXTURES 64
 #define MAX_DB_GFX_MESHES 64
+
 #define MAX_DB_VK_DESCRIPTOR_SETS 64
+
+#define MAX_DB_LIT_MATERIALS 64
+#define MAX_DB_FONT_MATERIALS 16
 
 struct LitEntity {
     uint32_t transformIndex;
+    uint32_t meshIndex;
+    uint32_t materialIndex;
+};
+
+struct FontEntity {
+    uint32_t uiTransformIndex;
     uint32_t meshIndex;
     uint32_t materialIndex;
 };
@@ -32,10 +44,24 @@ struct Transform {
     vec3f scale{1.0f, 1.0f, 1.0f};
 };
 
+struct UiTransform {
+    vec2f position{0.0f, 0.0f};
+    vec2f rotation{0.0f, 0.0f};
+    vec2f scale{1.0f, 1.0f};
+    vec2f size{1.0f, 1.0f};
+    vec2f pivot{0.5f, 0.5f};
+    vec4f anchor{0.5f, 0.5f, 0.5f, 0.5f};
+};
+
 struct Camera {
     float fov{60.0f};
     float zNear{0.1f};
     float zFar{800.0f};
+};
+
+struct FontMaterial {
+    uint32_t descriptorSetIndex{0};
+    uint32_t atlasIndex{0};
 };
 
 struct LitMaterial {

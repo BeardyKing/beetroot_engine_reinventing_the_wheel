@@ -15,7 +15,7 @@ layout (location = 0) out vec4 outFragColor;
 
 void main(){
     vec2 uv = stageLayout.uv;
-    vec4 outCol = vec4(texture(u_albedo, uv).xyz, 1.0f);
+    vec4 outCol = vec4(texture(u_albedo, uv).rgb, 1.0f);
 
     outFragColor = outCol;
 }
