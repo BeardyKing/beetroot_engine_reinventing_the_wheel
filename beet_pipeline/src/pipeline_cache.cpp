@@ -17,7 +17,7 @@ bool pipeline_cache_should_convert(const std::string &toPath, const std::string 
     stat(fromPath.c_str(), &fromFileStat);
 
     if (toFileStat.st_mtime > fromFileStat.st_mtime) {
-        log_info("cached skipping convert: %s \n", toPath.c_str())
+        log_info(MSG_PIPELINE, "cached skipping convert: %s \n", toPath.c_str())
         return false;
     }
     return true;

@@ -19,7 +19,7 @@ void log_packet_info(const char *in_buffer, const int &in_bufferSize, const sock
     printf("Received packet from %s:%d\n", inet_ntoa(si_other.sin_addr), ntohs(si_other.sin_port));
     char data[UDP_SOCKET_BUF_LEN];
     strcpy_s(data, sizeof(char) * in_bufferSize, in_buffer);
-    log_verbose("Data: %s\n", data);
+    log_verbose(MSG_NET,"Data: %s\n", data);
 }
 
 //===api=====================

@@ -83,7 +83,7 @@ void gfx_font_record_render_pass(VkCommandBuffer &cmdBuffer) {
         atlasInfo = pipeline_load_atlas_info("../res/fonts/JetBrainsMono/JetBrainsMono-Regular.desc");
         for (int i = 0; i < atlasInfo->glyphCount; ++i) {
 //            atlasInfo->glyphs[i].glyph;
-            log_info("glyph %c : %u\n", atlasInfo->glyphs[i].glyph, atlasInfo->glyphs[i].glyph);
+            log_info(MSG_DBG, "glyph %c : %u\n", atlasInfo->glyphs[i].glyph, atlasInfo->glyphs[i].glyph);
         }
     }
     float width = (float) atlasInfo->atlasWidth;
@@ -93,7 +93,7 @@ void gfx_font_record_render_pass(VkCommandBuffer &cmdBuffer) {
     float offsetX = ((float) atlasInfo->glyphs[2].x_off) / (width / 2);
     float offsetY = ((float) atlasInfo->glyphs[2].y_off) / (height / 2);
 
-    log_info("%f, %f, %f, %f, %f, %f \n",
+    log_info(MSG_DBG, "%f, %f, %f, %f, %f, %f \n",
              width, height, scaleX,
              scaleY, offsetX, offsetY);
 

@@ -8,7 +8,7 @@ void gfx_load_shader_binary(const char *path, char **out_data, size_t &out_fileS
     std::ifstream file{path, std::ios::ate | std::ios::binary};
 
     if (!file.is_open()) {
-        log_warning("failed to find path: %s\n", path);
+        log_warning(MSG_GFX, "failed to find path: %s\n", path);
         out_fileSize = 0;
     }
 

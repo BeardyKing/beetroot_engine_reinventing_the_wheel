@@ -54,11 +54,12 @@ void store_supported_extensions() {
     vkEnumerateInstanceExtensionProperties(nullptr, &g_vulkanProperties->extensionsCount, nullptr);
     g_vulkanProperties->supportedExtensions = new VkExtensionProperties[g_vulkanProperties->extensionsCount];
     if (g_vulkanProperties->extensionsCount > 0) {
-        vkEnumerateInstanceExtensionProperties(nullptr, &g_vulkanProperties->extensionsCount, g_vulkanProperties->supportedExtensions);
+        vkEnumerateInstanceExtensionProperties(nullptr, &g_vulkanProperties->extensionsCount,
+                                               g_vulkanProperties->supportedExtensions);
     }
 
     for (uint32_t i = 0; i < g_vulkanProperties->extensionsCount; ++i) {
-        log_verbose("Extension: %s \n", g_vulkanProperties->supportedExtensions[i].extensionName);
+        log_verbose(MSG_GFX, "Extension: %s \n", g_vulkanProperties->supportedExtensions[i].extensionName);
     }
 }
 
@@ -66,11 +67,12 @@ void store_supported_validation_layers() {
     vkEnumerateInstanceLayerProperties(&g_vulkanProperties->validationLayersCount, nullptr);
     g_vulkanProperties->supportedValidationLayers = new VkLayerProperties[g_vulkanProperties->validationLayersCount];
     if (g_vulkanProperties->validationLayersCount > 0) {
-        vkEnumerateInstanceLayerProperties(&g_vulkanProperties->validationLayersCount, g_vulkanProperties->supportedValidationLayers);
+        vkEnumerateInstanceLayerProperties(&g_vulkanProperties->validationLayersCount,
+                                           g_vulkanProperties->supportedValidationLayers);
     }
 
     for (uint32_t i = 0; i < g_vulkanProperties->validationLayersCount; ++i) {
-        log_verbose("Layer: %s - Desc: %s \n",
+        log_verbose(MSG_GFX, "Layer: %s - Desc: %s \n",
                     g_vulkanProperties->supportedValidationLayers[i].layerName,
                     g_vulkanProperties->supportedValidationLayers[i].description);
     }
@@ -98,19 +100,19 @@ static VkBool32 VKAPI_PTR validation_message_callback(
 
     switch (messageWarningLevel) {
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT: {
-            log_error("\ncode: \t\t%s \nmessage: \t%s\n", callbackData->pMessageIdName, callbackData->pMessage);
+            log_error(MSG_GFX, "\ncode: \t\t%s \nmessage: \t%s\n", callbackData->pMessageIdName, callbackData->pMessage);
             break;
         }
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT: {
-            log_warning("\ncode: \t\t%s \nmessage: \t%s\n", callbackData->pMessageIdName, callbackData->pMessage);
+            log_warning(MSG_GFX, "\ncode: \t\t%s \nmessage: \t%s\n", callbackData->pMessageIdName, callbackData->pMessage);
             break;
         }
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT: {
-            log_info("\ncode: \t\t%s \nmessage: \t%s\n", callbackData->pMessageIdName, callbackData->pMessage);
+            log_info(MSG_GFX, "\ncode: \t\t%s \nmessage: \t%s\n", callbackData->pMessageIdName, callbackData->pMessage);
             break;
         }
         case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT: {
-            log_verbose("\ncode: \t\t%s \nmessage: \t%s\n", callbackData->pMessageIdName, callbackData->pMessage);
+            log_verbose(MSG_GFX, "\ncode: \t\t%s \nmessage: \t%s\n", callbackData->pMessageIdName, callbackData->pMessage);
             break;
         }
         default: {
@@ -257,13 +259,16 @@ VkFormat find_depth_format(const VkImageTiling &desiredTilingFormat) {
 
 VkPresentModeKHR select_present_mode() {
     uint32_t presentModeCount = 0;
-    vkGetPhysicalDeviceSurfacePresentModesKHR(g_gfxDevice->vkPhysicalDevice, g_gfxDevice->vkSurface, &presentModeCount, nullptr);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(g_gfxDevice->vkPhysicalDevice, g_gfxDevice->vkSurface, &presentModeCount,
+                                              nullptr);
 
     VkPresentModeKHR *presentModes = new VkPresentModeKHR[presentModeCount];
-    vkGetPhysicalDeviceSurfacePresentModesKHR(g_gfxDevice->vkPhysicalDevice, g_gfxDevice->vkSurface, &presentModeCount, presentModes);
+    vkGetPhysicalDeviceSurfacePresentModesKHR(g_gfxDevice->vkPhysicalDevice, g_gfxDevice->vkSurface, &presentModeCount,
+                                              presentModes);
 
     VkPresentModeKHR selectedPresentMode{VK_PRESENT_MODE_FIFO_KHR};
-    VkPresentModeKHR preferredMode = g_userArguments->vsync ? VK_PRESENT_MODE_MAILBOX_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
+    VkPresentModeKHR preferredMode = g_userArguments->vsync ? VK_PRESENT_MODE_MAILBOX_KHR
+                                                            : VK_PRESENT_MODE_IMMEDIATE_KHR;
     for (uint32_t i = 0; i < presentModeCount; ++i) {
         if (presentModes[i] == preferredMode) {
             selectedPresentMode = presentModes[i];
@@ -276,10 +281,12 @@ VkPresentModeKHR select_present_mode() {
 
 VkSurfaceFormatKHR select_surface_format() {
     uint32_t surfaceFormatsCount = 0;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(g_gfxDevice->vkPhysicalDevice, g_gfxDevice->vkSurface, &surfaceFormatsCount, nullptr);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(g_gfxDevice->vkPhysicalDevice, g_gfxDevice->vkSurface, &surfaceFormatsCount,
+                                         nullptr);
 
     VkSurfaceFormatKHR *surfaceFormats = new VkSurfaceFormatKHR[surfaceFormatsCount];
-    vkGetPhysicalDeviceSurfaceFormatsKHR(g_gfxDevice->vkPhysicalDevice, g_gfxDevice->vkSurface, &surfaceFormatsCount, surfaceFormats);
+    vkGetPhysicalDeviceSurfaceFormatsKHR(g_gfxDevice->vkPhysicalDevice, g_gfxDevice->vkSurface, &surfaceFormatsCount,
+                                         surfaceFormats);
 
     // Create swap chain
     //select best surface format
@@ -571,8 +578,7 @@ void gfx_create_physical_device() {
 #if BEET_DEBUG
     if (BEET_DEBUG_VK_FORCE_GPU_SELECTION > -1) {
         selectedDevice = BEET_DEBUG_VK_FORCE_GPU_SELECTION;
-        log_warning("Using debug ONLY feature `BEET_VK_FORCE_GPU_SELECTION` selecting device [%i]\n",
-                    selectedDevice)
+        log_warning(MSG_GFX, "Using debug ONLY feature `BEET_VK_FORCE_GPU_SELECTION` selecting device [%i]\n", selectedDevice)
     }
 #endif
 
@@ -592,7 +598,7 @@ void gfx_create_physical_device() {
 
     const char *deviceType = BEET_VK_PHYSICAL_DEVICE_TYPE_MAPPING[g_vulkanProperties->selectedPhysicalDevice.deviceType];
 
-    log_info("\nName:\t\t%s \nType:\t\t%s \nVersion:\t%u.%u.%u \nDriver: \t%u.%u.%u\n",
+    log_info(MSG_GFX, "\nName:\t\t%s \nType:\t\t%s \nVersion:\t%u.%u.%u \nDriver: \t%u.%u.%u\n",
              g_vulkanProperties->selectedPhysicalDevice.deviceName,
              deviceType,
              apiVersionMajor,
@@ -686,9 +692,9 @@ void gfx_create_queues() {
         }
     }
 
-    log_verbose("present queue index:  %u \n", presentQueueInfo.queueIndex);
-    log_verbose("graphics queue index: %u \n", graphicsQueueInfo.queueIndex);
-    log_verbose("transfer queue index: %u \n", transferQueueInfo.queueIndex);
+    log_verbose(MSG_GFX, "present queue index:  %u \n", presentQueueInfo.queueIndex);
+    log_verbose(MSG_GFX, "graphics queue index: %u \n", graphicsQueueInfo.queueIndex);
+    log_verbose(MSG_GFX, "transfer queue index: %u \n", transferQueueInfo.queueIndex);
 
     ASSERT_MSG(presentQueueInfo.queueIndex != UINT32_MAX, "Err: did not find present queue");
     ASSERT_MSG(graphicsQueueInfo.queueIndex != UINT32_MAX, "Err: did not find graphics queue");

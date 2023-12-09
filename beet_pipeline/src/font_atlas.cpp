@@ -130,7 +130,7 @@ void pipeline_build_font_atlas(const std::string &fontName,
         stbi_write_png(fontAtlasOutName.c_str(), int32_t(maxTexWidth), int32_t(maxTexHeight), 4, png_data, int32_t(maxTexWidth) * 4);
         delete[] png_data;
     }
-    log_info("font atlas: %s \n", fontAtlasOutName.c_str());
+    log_info(MSG_PIPELINE, "font atlas: %s \n", fontAtlasOutName.c_str());
     {
         AtlasInfo info{};
         info.version = ATLAS_INFO_VERSION_0;
@@ -141,7 +141,7 @@ void pipeline_build_font_atlas(const std::string &fontName,
         info.atlasHeight = maxTexHeight;
         pipeline_save_atlas_info(&info, fontAtlasDescOutName);
     }
-    log_info("font desc: %s \n", fontAtlasDescOutName.c_str());
+    log_info(MSG_PIPELINE, "font desc: %s \n", fontAtlasDescOutName.c_str());
 
     delete[] glyphInfo;
     delete[] glyphText;
@@ -181,9 +181,9 @@ void test_load_atlas_info() {
 }
 
 void pipeline_font_atlas_log() {
-    log_info("\n")
-    log_info("===========================\n")
-    log_info("===BUILDING FONTS==========\n")
-    log_info("===========================\n")
-    log_info("\n")
+    log_info(MSG_PIPELINE, "\n")
+    log_info(MSG_PIPELINE, "===========================\n")
+    log_info(MSG_PIPELINE, "===BUILDING FONTS==========\n")
+    log_info(MSG_PIPELINE, "===========================\n")
+    log_info(MSG_PIPELINE, "\n")
 }

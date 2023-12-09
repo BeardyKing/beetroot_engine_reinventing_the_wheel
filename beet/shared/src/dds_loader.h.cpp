@@ -412,12 +412,11 @@ static void get_image_info(
 }
 
 void load_dds_image(const char *path, RawImage *outRawImage) {
-    log_verbose("loading dds image : %s \n", path);
+    log_verbose(MSG_DDS, "loading dds image : %s \n", path);
 
     std::ifstream file{path, std::ios::ate | std::ios::binary};
     ASSERT_MSG(file.is_open(), "Err: failed to find path: %s \n", path);
     const size_t fileSize = file.tellg();
-
 
     char *rawFileData = (char *) malloc(fileSize);
     char ext[4] = {};
