@@ -5,9 +5,6 @@
 #define PIPELINE_RES_DIR BEET_CMAKE_RES_DIR // defined in preprocess_pipeline/CmakeLists.txt
 #define CLIENT_RUNTIME_RES_DIR BEET_CMAKE_CLIENT_RES_DIR
 
-//===pipeline cache==========
-#define PIPELINE_CACHE_ALWAYS_CONVERT false
-
 //===shader compile==========
 #define PIPELINE_SHADER_DIR PIPELINE_RES_DIR "shaders/"
 #define CLIENT_RUNTIME_SHADER_DIR BEET_CMAKE_CLIENT_RES_DIR "shaders/"

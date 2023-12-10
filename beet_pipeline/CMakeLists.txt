@@ -13,6 +13,8 @@ add_executable(beet_pipeline
         src/pipeline_cache.cpp
         inc/pipeline/texture_compression.h
         src/texture_compression.cpp
+        inc/pipeline/pipeline_commandlines.h
+        src/pipeline_commandlines.cpp
 )
 
 ##===LIB TARGET DIR=======//

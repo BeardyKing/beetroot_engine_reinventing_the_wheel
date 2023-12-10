@@ -1,6 +1,7 @@
 #include <pipeline/font_atlas.h>
 #include <pipeline/shader_compile.h>
 #include <pipeline/texture_compression.h>
+#include <pipeline/pipeline_commandlines.h>
 
 #include <shared/log.h>
 #include <shared/texture_formats.h>
@@ -38,7 +39,13 @@ void build_compressed_textures() {
 
 }
 
-int main() {
+int32_t main(int32_t argc, char **argv) {
+    commandline_init(argc, argv);
+    if(commandline_get_arg(CLArgs::help).enabled){
+        commandline_show_commands();
+        return 0;
+    }
+
     build_font_atlas_and_description();
     build_spv_from_source();
     build_compressed_textures();

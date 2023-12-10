@@ -1,12 +1,12 @@
 #include <pipeline/pipeline_cache.h>
-#include <pipeline/pipeline_defines.h>
+#include <pipeline/pipeline_commandlines.h>
 
 #include <shared/log.h>
 
 #include <sys/stat.h>
 
 bool pipeline_cache_should_convert(const std::string &toPath, const std::string &fromPath) {
-    if (PIPELINE_CACHE_ALWAYS_CONVERT) {
+    if (commandline_get_arg(CLArgs::ignoreConvertCache).enabled) {
         return true;
     }
 
